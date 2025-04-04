@@ -1,0 +1,20 @@
+# CMake build artifacts
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+compile_commands.json
+
+# Executable binaries
+gomoku_robot
+*.out
+*.elf
+*.a
+*.so
+
+# Editor settings
+.vscode/
+.idea/
+*.log
+*.swp
