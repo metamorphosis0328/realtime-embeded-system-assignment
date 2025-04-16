@@ -5,7 +5,7 @@ class MinimaxAlgorithm:
     def __init__(self, board_size=(12, 12), search_depth=3, attack_ratio=1):
         """
         Initialize the Minimax algorithm
-        :param board_size: Board size, default 15x15
+        :param board_size: Board size, default 12x12
         :param search_depth: Search depth, default 3 (must be odd)
         :param attack_ratio: Attack ratio (>1 is more aggressive, <1 is more defensive)
         """

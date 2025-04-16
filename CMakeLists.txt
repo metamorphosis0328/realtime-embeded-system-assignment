@@ -1,24 +1,23 @@
-cmake_minimum_required(VERSION 3.10.0)
+cmake_minimum_required(VERSION 3.10)
+project(GobangAI)
 
-project(gomoku_robot VERSION 0.1.0 LANGUAGES C CXX)
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/arm)
-
-# Main
-add_executable(gomoku_robot
-    src/main.cpp
+# Add source files
+set(SOURCES
+    minimax_algorithm.cpp
+    how_to_use.cpp
 )
 
-# Test (optional)
-option(BUILD_TESTS "Build test programs" ON)
-if(BUILD_TESTS)
-    # add_executable(test_cam
-    # tests/test_cam.cpp)
+# Create executable
+add_executable(gobang_ai ${SOURCES})
 
-    # find_package(OpenCV REQUIRED)
-    # target_link_libraries(test_cam ${OpenCV_LIBS})
-
-    add_executable(test_servo
-    tests/test_servo.cpp
+# Output binary to bin directory
+set_target_properties(gobang_ai PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
-endif()
+
+# Install
+install(TARGETS gobang_ai DESTINATION bin) 
