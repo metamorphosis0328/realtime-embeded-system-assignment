@@ -9,11 +9,12 @@
  */
 struct ServoConfig
 {
-    int channel;        // PCA9685 channel number (0–15)
-    float minAngle;     // Minimum logical angle (degrees)
-    float maxAngle;     // Maximum logical angle (degrees)
-    int minPulseUs;     // PWM pulse width corresponding to minAngle (µs)
-    int maxPulseUs;     // PWM pulse width corresponding to maxAngle (µs)
+    int channel;    // PCA9685 channel number (0–15)
+    float minAngle; // Minimum logical angle (degrees)
+    float maxAngle; // Maximum logical angle (degrees)
+    int minPulseUs; // PWM pulse width corresponding to minAngle (µs)
+    int maxPulseUs; // PWM pulse width corresponding to maxAngle (µs)
+    bool inverted = true;
 };
 
 // === Predefined servo configs ===
@@ -23,41 +24,41 @@ struct ServoConfig
 /**
  * @brief Base servo configuration (rotation around vertical axis).
  * Calibrated center position: 1800us.
- * Positive angle: counter-clockwise, negative angle: clockwise
+ * Positive angle: clockwise, negative angle: counter-clockwise
  */
 const ServoConfig BASE_SERVO = {
     .channel = 1,
     .minAngle = -90.0f,
     .maxAngle = 90.0f,
     .minPulseUs = 1000,
-    .maxPulseUs = 2600
-};
+    .maxPulseUs = 2600,
+    .inverted = true};
 
 /**
- * @brief Shoulder servo configuration (rotation around horizontal axis).
- * Calibrated center position: 1800us.
- * Positive angle: arm moves down; negative angle: arm moves up.
+ * @brief Shoulder servo configuration.
+ * Asymmetric angle range: -45° to +30°.
+ * Positive angle: arm moves forward; negative angle: arm moves backward.
  */
 const ServoConfig SHOULDER_SERVO = {
     .channel = 2,
     .minAngle = -45.0f,
     .maxAngle = 30.0f,
     .minPulseUs = 1400, // 1800 - (800 * 45 / 90)
-    .maxPulseUs = 2066  // 1800 + (800 * 30 / 90)
-};
+    .maxPulseUs = 2066, // 1800 + (800 * 30 / 90)
+    .inverted = true};
 
 /**
  * @brief Elbow servo configuration (rotation around horizontal axis).
  * Calibrated center position: 1800us.
- * Positive angle: arm moves down; negative angle: arm moves up.
+ * Positive angle: arm moves up; negative angle: arm moves down.
  */
 const ServoConfig ELBOW_SERVO = {
     .channel = 0,
     .minAngle = -30.0f,
     .maxAngle = 50.0f,
     .minPulseUs = 1533, // 1800 - (800 * 30 / 90)
-    .maxPulseUs = 2240  // 1800 + (800 * 50 / 90)
-};
+    .maxPulseUs = 2240, // 1800 + (800 * 50 / 90)
+    .inverted = true};
 
 /**
  * @brief Class to control servo motors via PCA9685 over I2C.
@@ -99,12 +100,12 @@ public:
     void releaseAllServos();
 
 private:
-    int i2cFd;     // File descriptor for I2C device
-    int i2cAddr;   // I2C address of the PCA9685 device
+    int i2cFd;   // File descriptor for I2C device
+    int i2cAddr; // I2C address of the PCA9685 device
 
-    void writeRegister(uint8_t reg, uint8_t value);        // Low-level I2C register write
-    void setPWMFreq(int freqHz);                           // Set PCA9685 PWM frequency
-    void setPWM(int channel, int onTick, int offTick);     // Set raw PWM values
+    void writeRegister(uint8_t reg, uint8_t value);    // Low-level I2C register write
+    void setPWMFreq(int freqHz);                       // Set PCA9685 PWM frequency
+    void setPWM(int channel, int onTick, int offTick); // Set raw PWM values
 };
 
 #endif
