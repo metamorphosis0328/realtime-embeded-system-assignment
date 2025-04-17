@@ -21,20 +21,9 @@ struct ServoConfig
 // 1800 is calibrated center for each servo
 
 /**
- * @brief Elbow servo configuration.
- * Centered at 1800us, range -30° to +50°.
- */
-const ServoConfig ELBOW_SERVO = {
-    .channel = 0,
-    .minAngle = -30.0f,
-    .maxAngle = 50.0f,
-    .minPulseUs = 1533, // 1800 - (800 * 30 / 90)
-    .maxPulseUs = 2240  // 1800 + (800 * 50 / 90)
-};
-
-/**
- * @brief Base rotation servo configuration.
- * Calibrated for full -90° to +90° range.
+ * @brief Base servo configuration (rotation around vertical axis).
+ * Calibrated center position: 1800us.
+ * Positive angle: counter-clockwise, negative angle: clockwise
  */
 const ServoConfig BASE_SERVO = {
     .channel = 1,
@@ -45,15 +34,29 @@ const ServoConfig BASE_SERVO = {
 };
 
 /**
- * @brief Shoulder servo configuration.
- * Asymmetric angle range: -45° to +30°.
+ * @brief Shoulder servo configuration (rotation around horizontal axis).
+ * Calibrated center position: 1800us.
+ * Positive angle: arm moves down; negative angle: arm moves up.
  */
 const ServoConfig SHOULDER_SERVO = {
     .channel = 2,
     .minAngle = -45.0f,
     .maxAngle = 30.0f,
-    .minPulseUs = 1400, // 1800 - (800 * 60 / 90)
+    .minPulseUs = 1400, // 1800 - (800 * 45 / 90)
     .maxPulseUs = 2066  // 1800 + (800 * 30 / 90)
+};
+
+/**
+ * @brief Elbow servo configuration (rotation around horizontal axis).
+ * Calibrated center position: 1800us.
+ * Positive angle: arm moves down; negative angle: arm moves up.
+ */
+const ServoConfig ELBOW_SERVO = {
+    .channel = 0,
+    .minAngle = -30.0f,
+    .maxAngle = 50.0f,
+    .minPulseUs = 1533, // 1800 - (800 * 30 / 90)
+    .maxPulseUs = 2240  // 1800 + (800 * 50 / 90)
 };
 
 /**
