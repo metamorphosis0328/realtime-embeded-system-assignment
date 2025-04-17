@@ -14,6 +14,7 @@ struct ServoConfig
     float maxAngle;      // Maximum logical angle (degrees)
     int minAnglePulseUs; // PWM pulse width corresponding to minAngle (µs)
     int maxAnglePulseUs; // PWM pulse width corresponding to maxAngle (µs)
+    bool inverted = true;
 };
 
 // === Predefined servo configs ===
@@ -29,8 +30,10 @@ const ServoConfig BASE_SERVO = {
     .channel = 1,
     .minAngle = -90.0f,
     .maxAngle = 90.0f,
-    .minAnglePulseUs = 2600,
-    .maxAnglePulseUs = 1000};
+    .minAnglePulseUs = 1000,
+    .maxAnglePulseUs = 2600,
+    .inverted = true
+};
 
 /**
  * @brief Shoulder servo configuration (rotation around horizontal axis).
@@ -41,8 +44,9 @@ const ServoConfig SHOULDER_SERVO = {
     .channel = 2,
     .minAngle = -45.0f,
     .maxAngle = 45.0f,
-    .minAnglePulseUs = 2200, // 1800 + (800 * 45 / 90)
-    .maxAnglePulseUs = 1400, // 1800 - (800 * 45 / 90)
+    .minAnglePulseUs = 1400, // 1800 + (800 * 45 / 90)
+    .maxAnglePulseUs = 2200, // 1800 - (800 * 45 / 90)
+    .inverted = true
 };
 
 /**
@@ -54,8 +58,9 @@ const ServoConfig ELBOW_SERVO = {
     .channel = 0,
     .minAngle = -45.0f,
     .maxAngle = 45.0f,
-    .minAnglePulseUs = 2200, // 1800 + (800 * 45 / 90)
-    .maxAnglePulseUs = 1400, // 1800 - (800 * 45 / 90)
+    .minAnglePulseUs = 1400, // 1800 + (800 * 45 / 90)
+    .maxAnglePulseUs = 2200, // 1800 - (800 * 45 / 90)
+    .inverted = true
 };
 
 /**
