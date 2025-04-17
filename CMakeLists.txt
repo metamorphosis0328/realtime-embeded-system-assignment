@@ -1,23 +1,25 @@
-cmake_minimum_required(VERSION 3.10)
-project(GobangAI)
+cmake_minimum_required(VERSION 3.10.0)
 
-# Set C++ standard
-set(CMAKE_CXX_STANDARD 11)
+project(gomoku_robot VERSION 0.1.0 LANGUAGES C CXX)
+
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Add source files
-set(SOURCES
-    minimax_algorithm.cpp
-    how_to_use.cpp
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+set(SERVO_SRC
+    lib/servo/ServoDriver.cpp
 )
 
-# Create executable
-add_executable(gobang_ai ${SOURCES})
-
-# Output binary to bin directory
-set_target_properties(gobang_ai PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+add_executable(gomoku_robot
+    src/main.cpp
+    ${SERVO_SRC}
 )
 
-# Install
-install(TARGETS gobang_ai DESTINATION bin) 
+option(BUILD_TESTS "Build test programs" ON)
+if(BUILD_TESTS)
+    add_executable(test_servo
+        tests/test_servo.cpp
+        ${SERVO_SRC}
+    )
+endif()

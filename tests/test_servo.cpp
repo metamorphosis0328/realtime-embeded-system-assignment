@@ -1,61 +1,117 @@
-#include "rpi_pwm.h"
+#include "servo/ServoDriver.hpp"
+#include <iostream>
+#include <thread>
+#include <chrono>
+#include <string>
+#include <map>
 
-#include <stdint.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-/**
- * Map angle to pulsewidth（850μs -> 0°，2150μs -> 180°）
- */
-int angleToPulse(int angle)
+void autoTest(ServoDriver &servo)
 {
-    if (angle < 0)
-        angle = 0;
-    if (angle > 180)
-        angle = 180;
-    return SERVO_PULSE_MIN + (angle * (SERVO_PULSE_MAX - SERVO_PULSE_MIN)) / 180;
+    servo.setServoAngle(BASE_SERVO, 0);
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    servo.setServoAngle(BASE_SERVO, BASE_SERVO.minAngle);
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    servo.setServoAngle(BASE_SERVO, 0);
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    servo.setServoAngle(BASE_SERVO, BASE_SERVO.maxAngle);
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    servo.setServoAngle(BASE_SERVO, 0);
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+
+    servo.setServoAngle(SHOULDER_SERVO, 0);
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    servo.setServoAngle(SHOULDER_SERVO, SHOULDER_SERVO.minAngle);
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    servo.setServoAngle(SHOULDER_SERVO, 0);
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    servo.setServoAngle(SHOULDER_SERVO, SHOULDER_SERVO.maxAngle);
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    servo.setServoAngle(SHOULDER_SERVO, 0);
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+
+    servo.setServoAngle(ELBOW_SERVO, 0);
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    servo.setServoAngle(ELBOW_SERVO, ELBOW_SERVO.minAngle);
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    servo.setServoAngle(ELBOW_SERVO, 0);
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    servo.setServoAngle(ELBOW_SERVO, ELBOW_SERVO.maxAngle);
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    servo.setServoAngle(ELBOW_SERVO, 0);
+    std::this_thread::sleep_for(std::chrono::seconds(3));
 }
 
-int main(int argc, char *argv[])
+void interactiveTest(ServoDriver &servo)
 {
-    int channel = 2;
-    int frequency = 50; // Hz
-    if (argc > 1)
-    {
-        channel = atoi(argv[1]);
-    }
-    printf("Enabling PWM on channel %d.\n", channel);
-    RPI_PWM pwm;
-    pwm.start(channel, frequency);
+    std::map<int, ServoConfig> servoMap = {
+        {0, ELBOW_SERVO},
+        {1, BASE_SERVO},
+        {2, SHOULDER_SERVO}};
 
-    std::cout << "Enter a servo angle (0-180), or 'q' to quit:" << std::endl;
-    std::string input;
+    int choice;
+    float angle;
+
+    std::cout << "\n[FREE MODE] Select servo channel:\n"
+              << "  0: Elbow\n"
+              << "  1: Base\n"
+              << "  2: Shoulder\n"
+              << "  5: Exit\n"
+              << "Enter channel number: ";
+    std::cin >> choice;
+
+    if (choice == 5 || !servoMap.count(choice))
+    {
+        std::cout << "Exiting or invalid channel.\n";
+        return;
+    }
+
+    const ServoConfig &selectedServo = servoMap[choice];
+
+    std::cout << "\nSelected channel: " << choice
+              << " (minAngle = " << selectedServo.minAngle
+              << ", maxAngle = " << selectedServo.maxAngle << ")\n";
+
     while (true)
     {
-        std::cout << "Angle > ";
-        std::getline(std::cin, input);
-        if (input == "q" || input == "Q")
+        std::cout << "Enter angle (or type 5 to exit this servo): ";
+        std::cin >> angle;
+
+        if (angle == 5)
             break;
 
-        try
-        {
-            int angle = std::stoi(input);
-            if (angle < 0 || angle > 180) {
-                std::cout << "Angle out of range. Please enter 0–180." << std::endl;
-                continue; // Continue to next input
-            }
-            int pulse = angleToPulse(angle);
-            std::cout << "Angle: " << angle << "°, corresponding pulsewidth: " << pulse << "μs" << std::endl;
-            int result = pwm.setPulseWidth(pulse);
-            std::cout << (result > 0 ? "Write successful." : "Write failed!") << std::endl;
-        }
-        catch (...)
-        {
-            std::cout << "Invalid input. Please enter a number between 0-180, or 'q' to quit." << std::endl;
-        }
+        servo.setServoAngle(selectedServo, angle);
+        // Test code for pulsewidth
+        // servo.setServoPulseUs(selectedServo.channel, static_cast<int>(angle));
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
-    pwm.stop();
-    std::cout << "PWM stopped, exiting program." << std::endl;
+}
+
+int main()
+{
+    ServoDriver servo;
+
+    int mode;
+    std::cout << "Select mode:\n"
+              << "  [1] Free control mode\n"
+              << "  [2] Automatic test mode\n"
+              << "Enter: ";
+    std::cin >> mode;
+
+    if (mode == 1)
+    {
+        interactiveTest(servo);
+    }
+    else if (mode == 2)
+    {
+        autoTest(servo);
+    }
+    else
+    {
+        std::cout << "Invalid mode." << std::endl;
+    }
+
+    std::cout << "Releasing all servos..." << std::endl;
+    servo.releaseAllServos();
+
     return 0;
 }
