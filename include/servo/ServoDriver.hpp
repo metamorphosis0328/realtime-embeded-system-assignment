@@ -9,11 +9,11 @@
  */
 struct ServoConfig
 {
-    int channel;        // PCA9685 channel number (0–15)
-    float minAngle;     // Minimum logical angle (degrees)
-    float maxAngle;     // Maximum logical angle (degrees)
-    int minPulseUs;     // PWM pulse width corresponding to minAngle (µs)
-    int maxPulseUs;     // PWM pulse width corresponding to maxAngle (µs)
+    int channel;         // PCA9685 channel number (0–15)
+    float minAngle;      // Minimum logical angle (degrees)
+    float maxAngle;      // Maximum logical angle (degrees)
+    int minAnglePulseUs; // PWM pulse width corresponding to minAngle (µs)
+    int maxAnglePulseUs; // PWM pulse width corresponding to maxAngle (µs)
 };
 
 // === Predefined servo configs ===
@@ -21,39 +21,41 @@ struct ServoConfig
 // 1800 is calibrated center for each servo
 
 /**
- * @brief Elbow servo configuration.
- * Centered at 1800us, range -30° to +50°.
- */
-const ServoConfig ELBOW_SERVO = {
-    .channel = 0,
-    .minAngle = -30.0f,
-    .maxAngle = 50.0f,
-    .minPulseUs = 1533, // 1800 - (800 * 30 / 90)
-    .maxPulseUs = 2240  // 1800 + (800 * 50 / 90)
-};
-
-/**
- * @brief Base rotation servo configuration.
- * Calibrated for full -90° to +90° range.
+ * @brief Base servo configuration (rotation around vertical axis).
+ * Calibrated center position: 1800us.
+ * Positive angle: clockwise, negative angle: counter-clockwise
  */
 const ServoConfig BASE_SERVO = {
     .channel = 1,
     .minAngle = -90.0f,
     .maxAngle = 90.0f,
-    .minPulseUs = 1000,
-    .maxPulseUs = 2600
-};
+    .minAnglePulseUs = 2600,
+    .maxAnglePulseUs = 1000};
 
 /**
- * @brief Shoulder servo configuration.
- * Asymmetric angle range: -45° to +30°.
+ * @brief Shoulder servo configuration (rotation around horizontal axis).
+ * Calibrated center position: 1800us.
+ * Positive angle: arm moves up; negative angle: arm moves down.
  */
 const ServoConfig SHOULDER_SERVO = {
     .channel = 2,
     .minAngle = -45.0f,
-    .maxAngle = 30.0f,
-    .minPulseUs = 1400, // 1800 - (800 * 60 / 90)
-    .maxPulseUs = 2066  // 1800 + (800 * 30 / 90)
+    .maxAngle = 45.0f,
+    .minAnglePulseUs = 2200, // 1800 + (800 * 45 / 90)
+    .maxAnglePulseUs = 1400, // 1800 - (800 * 45 / 90)
+};
+
+/**
+ * @brief Elbow servo configuration (rotation around horizontal axis).
+ * Calibrated center position: 1800us.
+ * Positive angle: arm moves up; negative angle: arm moves down.
+ */
+const ServoConfig ELBOW_SERVO = {
+    .channel = 0,
+    .minAngle = -45.0f,
+    .maxAngle = 45.0f,
+    .minAnglePulseUs = 2200, // 1800 + (800 * 45 / 90)
+    .maxAnglePulseUs = 1400, // 1800 - (800 * 45 / 90)
 };
 
 /**
@@ -96,12 +98,12 @@ public:
     void releaseAllServos();
 
 private:
-    int i2cFd;     // File descriptor for I2C device
-    int i2cAddr;   // I2C address of the PCA9685 device
+    int i2cFd;   // File descriptor for I2C device
+    int i2cAddr; // I2C address of the PCA9685 device
 
-    void writeRegister(uint8_t reg, uint8_t value);        // Low-level I2C register write
-    void setPWMFreq(int freqHz);                           // Set PCA9685 PWM frequency
-    void setPWM(int channel, int onTick, int offTick);     // Set raw PWM values
+    void writeRegister(uint8_t reg, uint8_t value);    // Low-level I2C register write
+    void setPWMFreq(int freqHz);                       // Set PCA9685 PWM frequency
+    void setPWM(int channel, int onTick, int offTick); // Set raw PWM values
 };
 
 #endif

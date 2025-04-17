@@ -88,7 +88,7 @@ void ServoDriver::setServoAngle(const ServoConfig &config, float angleDeg)
     float ratio = (angleDeg - config.minAngle) / (config.maxAngle - config.minAngle);
 
     // Map angle to pulse width
-    int pulseUs = config.minPulseUs + static_cast<int>(ratio * (config.maxPulseUs - config.minPulseUs));
+    int pulseUs = config.minAnglePulseUs + static_cast<int>(ratio * (config.maxAnglePulseUs - config.minAnglePulseUs));
 
     setServoPulseUs(config.channel, pulseUs);
 }
