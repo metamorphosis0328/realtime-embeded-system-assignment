@@ -82,19 +82,17 @@ void ServoDriver::setServoPulseUs(int channel, int pulseUs)
 // Set servo angle according to provided ServoConfig
 void ServoDriver::setServoAngle(const ServoConfig &config, float angleDeg)
 {
-    // If inverted flag is true, flip the angle sign
-    float mappedAngle = config.inverted
-                            ? config.minAngle + config.maxAngle - angleDeg
-                            : angleDeg;
-
     // Clamp angle within config range
-    mappedAngle = std::clamp(mappedAngle, config.minAngle, config.maxAngle);
+    angleDeg = std::clamp(angleDeg, config.minAngle, config.maxAngle);
 
     // Calculate normalized ratio of the angle
-    float ratio = (mappedAngle - config.minAngle) / (config.maxAngle - config.minAngle);
+    float ratio = (angleDeg - config.minAngle) / (config.maxAngle - config.minAngle);
 
     // Map angle to pulse width
-    int pulseUs = config.minPulseUs + static_cast<int>(ratio * (config.maxPulseUs - config.minPulseUs));
+    int pulseUs = config.minAnglePulseUs + static_cast<int>(ratio * (config.maxAnglePulseUs - config.minAnglePulseUs));
+
+    // Output angle information
+    std::cout << "[Arm] angle=" << angleDeg << "°" << std::endl;
 
     setServoPulseUs(config.channel, pulseUs);
 }

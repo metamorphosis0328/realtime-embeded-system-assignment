@@ -9,17 +9,18 @@
  */
 struct ServoConfig
 {
-    int channel;    // PCA9685 channel number (0–15)
-    float minAngle; // Minimum logical angle (degrees)
-    float maxAngle; // Maximum logical angle (degrees)
-    int minPulseUs; // PWM pulse width corresponding to minAngle (µs)
-    int maxPulseUs; // PWM pulse width corresponding to maxAngle (µs)
-    bool inverted = true;
+    int channel;         // PCA9685 channel number (0–15)
+    float minAngle;      // Minimum logical angle (degrees)
+    float maxAngle;      // Maximum logical angle (degrees)
+    int minAnglePulseUs; // PWM pulse width corresponding to minAngle (µs)
+    int maxAnglePulseUs; // PWM pulse width corresponding to maxAngle (µs)
 };
 
 // === Predefined servo configs ===
 // Wiring order: channel 0 (elbow), 1 (base), 2 (shoulder)
-// 1800 is calibrated center for each servo
+// The min and max angles are manually set due to mechanical limits
+// Pulse width values are calibrated as follows:
+// 1800us for center (0°); 1000us for +90°; 2600us for -90°
 
 /**
  * @brief Base servo configuration (rotation around vertical axis).
@@ -30,9 +31,9 @@ const ServoConfig BASE_SERVO = {
     .channel = 1,
     .minAngle = -90.0f,
     .maxAngle = 90.0f,
-    .minPulseUs = 1000,
-    .maxPulseUs = 2600,
-    .inverted = true};
+    .minAnglePulseUs = 2600,
+    .maxAnglePulseUs = 1000,
+};
 
 /**
  * @brief Shoulder servo configuration (rotation around horizontal axis).
@@ -41,11 +42,11 @@ const ServoConfig BASE_SERVO = {
  */
 const ServoConfig SHOULDER_SERVO = {
     .channel = 2,
-    .minAngle = -45.0f,
-    .maxAngle = 30.0f,
-    .minPulseUs = 1400, // 1800 - (800 * 45 / 90)
-    .maxPulseUs = 2066, // 1800 + (800 * 30 / 90)
-    .inverted = true};
+    .minAngle = -20.0f,
+    .maxAngle = 45.0f,
+    .minAnglePulseUs = 1978, // 1800 + (800 * 20° / 90°)
+    .maxAnglePulseUs = 1400, // 1800 - (800 * 45° / 90°)
+};
 
 /**
  * @brief Elbow servo configuration (rotation around horizontal axis).
@@ -54,11 +55,11 @@ const ServoConfig SHOULDER_SERVO = {
  */
 const ServoConfig ELBOW_SERVO = {
     .channel = 0,
-    .minAngle = -30.0f,
-    .maxAngle = 50.0f,
-    .minPulseUs = 1533, // 1800 - (800 * 30 / 90)
-    .maxPulseUs = 2240, // 1800 + (800 * 50 / 90)
-    .inverted = true};
+    .minAngle = -50.0f,
+    .maxAngle = 0.0f,
+    .minAnglePulseUs = 2244, // 1800 + (800 * 50° / 90°)
+    .maxAnglePulseUs = 1800,
+};
 
 /**
  * @brief Class to control servo motors via PCA9685 over I2C.
