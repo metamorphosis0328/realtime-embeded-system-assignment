@@ -106,3 +106,20 @@ void ServoDriver::releaseAllServos()
     }
     std::cout << "[ServoDriver] All servos released." << std::endl;
 }
+
+// Reset all servos to center
+void ServoDriver::resetServos()
+{
+    setServoAngle(BASE_SERVO, 0.0f);
+    setServoAngle(SHOULDER_SERVO, 0.0f);
+    setServoAngle(ELBOW_SERVO, 0.0f);
+
+    std::cout << "[Servo] All servos reset to 0°." << std::endl;
+}
+
+// Reset a specific servo to center
+void ServoDriver::resetServos(const ServoConfig& config)
+{
+    setServoAngle(config, 0.0f);
+    std::cout << "[Servo] Servo on channel " << config.channel << " reset to 0°." << std::endl;
+}

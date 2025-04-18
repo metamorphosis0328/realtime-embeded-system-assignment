@@ -100,6 +100,18 @@ public:
      */
     void releaseAllServos();
 
+    /**
+     * @brief Reset all servos by setting their angle to 0°.
+     */
+    void resetServos();
+
+    /**
+     * @brief Reset a specific servo by setting its angle to 0°.
+     * @param config The servo to reset.
+     * @overload resetServos()
+     */
+    void resetServos(const ServoConfig &config);
+
 private:
     int i2cFd;   // File descriptor for I2C device
     int i2cAddr; // I2C address of the PCA9685 device
