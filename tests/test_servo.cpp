@@ -7,38 +7,28 @@
 
 void autoTest(ServoDriver &servo)
 {
-    servo.setServoAngle(BASE_SERVO, 0);
-    std::this_thread::sleep_for(std::chrono::seconds(3));
     servo.setServoAngle(BASE_SERVO, BASE_SERVO.minAngle);
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-    servo.setServoAngle(BASE_SERVO, 0);
-    std::this_thread::sleep_for(std::chrono::seconds(3));
+    std::this_thread::sleep_for(std::chrono::seconds(2));
     servo.setServoAngle(BASE_SERVO, BASE_SERVO.maxAngle);
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-    servo.setServoAngle(BASE_SERVO, 0);
-    std::this_thread::sleep_for(std::chrono::seconds(3));
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    servo.resetServos(BASE_SERVO);
+    std::this_thread::sleep_for(std::chrono::seconds(2));
 
-    servo.setServoAngle(SHOULDER_SERVO, 0);
-    std::this_thread::sleep_for(std::chrono::seconds(3));
+
     servo.setServoAngle(SHOULDER_SERVO, SHOULDER_SERVO.minAngle);
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-    servo.setServoAngle(SHOULDER_SERVO, 0);
-    std::this_thread::sleep_for(std::chrono::seconds(3));
+    std::this_thread::sleep_for(std::chrono::seconds(2));
     servo.setServoAngle(SHOULDER_SERVO, SHOULDER_SERVO.maxAngle);
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-    servo.setServoAngle(SHOULDER_SERVO, 0);
-    std::this_thread::sleep_for(std::chrono::seconds(3));
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    servo.resetServos(SHOULDER_SERVO);
+    std::this_thread::sleep_for(std::chrono::seconds(2));
 
-    servo.setServoAngle(ELBOW_SERVO, 0);
-    std::this_thread::sleep_for(std::chrono::seconds(3));
+
     servo.setServoAngle(ELBOW_SERVO, ELBOW_SERVO.minAngle);
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-    servo.setServoAngle(ELBOW_SERVO, 0);
-    std::this_thread::sleep_for(std::chrono::seconds(3));
+    std::this_thread::sleep_for(std::chrono::seconds(2));
     servo.setServoAngle(ELBOW_SERVO, ELBOW_SERVO.maxAngle);
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-    servo.setServoAngle(ELBOW_SERVO, 0);
-    std::this_thread::sleep_for(std::chrono::seconds(3));
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    servo.resetServos(ELBOW_SERVO);
+    std::this_thread::sleep_for(std::chrono::seconds(2));
 }
 
 void interactiveTest(ServoDriver &servo)
@@ -89,8 +79,11 @@ void interactiveTest(ServoDriver &servo)
 int main()
 {
     ServoDriver servo;
-
     int mode;
+
+    servo.resetServos();
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+
     std::cout << "Select mode:\n"
               << "  [1] Free control mode\n"
               << "  [2] Automatic test mode\n"
