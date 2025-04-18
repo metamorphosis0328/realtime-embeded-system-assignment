@@ -98,7 +98,14 @@ public:
     /**
      * @brief Release all servos by setting their PWM to 0.
      */
-    void releaseAllServos();
+    void releaseServos();
+
+    /**
+     * @brief Release a specific servo by setting its PWM to 0.
+     * @param config The servo to release.
+     * @overload releaseServos()
+     */
+    void releaseServos(const ServoConfig &config);
 
     /**
      * @brief Reset all servos by setting their angle to 0°.

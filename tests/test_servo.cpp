@@ -104,7 +104,7 @@ int main()
     }
 
     std::cout << "Releasing all servos..." << std::endl;
-    servo.releaseAllServos();
+    servo.releaseServos();
 
     return 0;
 }

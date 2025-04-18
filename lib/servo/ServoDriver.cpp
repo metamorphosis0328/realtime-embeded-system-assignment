@@ -7,6 +7,8 @@
 #include <stdexcept>
 #include <cmath>
 #include <algorithm>
+#include <thread>
+#include <chrono>
 
 // Constructor: Initializes I2C communication with PCA9685
 ServoDriver::ServoDriver(int i2cBus, int address)
@@ -97,14 +99,21 @@ void ServoDriver::setServoAngle(const ServoConfig &config, float angleDeg)
     setServoPulseUs(config.channel, pulseUs);
 }
 
-// Disable PWM output on all 16 channels (used to stop all servos)
-void ServoDriver::releaseAllServos()
+// Release all servos
+void ServoDriver::releaseServos()
 {
-    for (int channel = 0; channel < 16; ++channel)
-    {
-        setPWM(channel, 0, 0);
-    }
-    std::cout << "[ServoDriver] All servos released." << std::endl;
+    setPWM(BASE_SERVO.channel, 0, 0);
+    setPWM(SHOULDER_SERVO.channel, 0, 0);
+    setPWM(ELBOW_SERVO.channel, 0, 0);
+
+    std::cout << "[Servo] All servos released." << std::endl;
+}
+
+// Release a specific servo
+void ServoDriver::releaseServos(const ServoConfig &cfg)
+{
+    setPWM(cfg.channel, 0, 0);
+    std::cout << "[Servo] Servo on channel " << cfg.channel << " released." << std::endl;
 }
 
 // Reset all servos to center
@@ -114,12 +123,19 @@ void ServoDriver::resetServos()
     setServoAngle(SHOULDER_SERVO, 0.0f);
     setServoAngle(ELBOW_SERVO, 0.0f);
 
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    releaseServos(); // Release to prevent jitter
+
     std::cout << "[Servo] All servos reset to 0°." << std::endl;
 }
 
 // Reset a specific servo to center
-void ServoDriver::resetServos(const ServoConfig& config)
+void ServoDriver::resetServos(const ServoConfig &config)
 {
     setServoAngle(config, 0.0f);
+
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    releaseServos(config); // Release to prevent jitter
+
     std::cout << "[Servo] Servo on channel " << config.channel << " reset to 0°." << std::endl;
 }
