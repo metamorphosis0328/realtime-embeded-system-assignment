@@ -35,8 +35,8 @@ const ServoConfig BASE_SERVO = {
     .inverted = true};
 
 /**
- * @brief Shoulder servo configuration.
- * Asymmetric angle range: -45° to +30°.
+ * @brief Shoulder servo configuration (rotation around horizontal axis).
+ * Calibrated center position: 1800us.
  * Positive angle: arm moves forward; negative angle: arm moves backward.
  */
 const ServoConfig SHOULDER_SERVO = {
