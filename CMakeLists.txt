@@ -9,10 +9,10 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 set(SOURCES
     src/main.cpp
-    lib/PCA9685Driver.cpp
-    lib/Servo.cpp
-    lib/Pump.cpp
-    lib/Electromagnet.cpp
+    src/driver/PCA9685Driver.cpp
+    src/driver/Servo.cpp
+    src/driver/Pump.cpp
+    src/driver/Electromagnet.cpp
 )
 
 add_executable(gomoku_robot ${SOURCES})
@@ -21,11 +21,11 @@ option(BUILD_TESTS "Build test programs" ON)
 if(BUILD_TESTS)
     add_executable(test_pca9685
     tests/test_pca9685.cpp
-    lib/PCA9685Driver.cpp
+    src/driver/PCA9685Driver.cpp
     )
     add_executable(test_servo
     tests/test_servo.cpp
-    lib/PCA9685Driver.cpp
-    lib/Servo.cpp
+    src/driver/PCA9685Driver.cpp
+    src/driver/Servo.cpp
 )
 endif()
