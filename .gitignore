@@ -8,11 +8,14 @@ compile_commands.json
 
 # Executable binaries
 gomoku_robot
-test_*
 *.out
 *.elf
 *.a
 *.so
+
+# Ignore test executables but keep test .cpp files
+test_*
+!test_*.cpp
 
 # Editor settings
 .vscode/
