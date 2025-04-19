@@ -8,6 +8,7 @@ compile_commands.json
 
 # Executable binaries
 gomoku_robot
+test_*
 *.out
 *.elf
 *.a
@@ -18,5 +19,3 @@ gomoku_robot
 .idea/
 *.log
 *.swp
-test_servo
-test_pca9685

@@ -13,6 +13,7 @@ set(SOURCES
     src/driver/Servo.cpp
     src/driver/Pump.cpp
     src/driver/Electromagnet.cpp
+    src/app/arm/ArmController.cpp
 )
 
 add_executable(gomoku_robot ${SOURCES})
@@ -23,9 +24,19 @@ if(BUILD_TESTS)
     tests/test_pca9685.cpp
     src/driver/PCA9685Driver.cpp
     )
+
     add_executable(test_servo
     tests/test_servo.cpp
     src/driver/PCA9685Driver.cpp
     src/driver/Servo.cpp
 )
+
+    add_executable(test_arm
+    tests/test_arm.cpp
+    src/driver/PCA9685Driver.cpp
+    src/driver/Servo.cpp
+    src/driver/Pump.cpp
+    src/driver/Electromagnet.cpp
+    src/app/arm/ArmController.cpp
+    )
 endif()
