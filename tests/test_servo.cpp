@@ -1,43 +1,38 @@
-#include "servo/ServoDriver.hpp"
+#include "PCA9685Driver.hpp"
+#include "Servo.hpp"
+
 #include <iostream>
 #include <thread>
 #include <chrono>
 #include <string>
 #include <map>
 
-void autoTest(ServoDriver &servo)
+void autoTest(Servo &servoBase, Servo &servoShoulder, Servo &servoElbow)
 {
-    servo.setServoAngle(BASE_SERVO, BASE_SERVO.minAngle);
+    servoBase.setAngle(BASE_SERVO.minAngle);
     std::this_thread::sleep_for(std::chrono::seconds(3));
-    servo.setServoAngle(BASE_SERVO, BASE_SERVO.maxAngle);
+    servoBase.setAngle(BASE_SERVO.maxAngle);
     std::this_thread::sleep_for(std::chrono::seconds(3));
-    servo.resetServos(BASE_SERVO);
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-
-
-    servo.setServoAngle(SHOULDER_SERVO, SHOULDER_SERVO.minAngle);
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-    servo.setServoAngle(SHOULDER_SERVO, SHOULDER_SERVO.maxAngle);
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-    servo.resetServos(SHOULDER_SERVO);
+    servoBase.setAngle(0); // reset to center
     std::this_thread::sleep_for(std::chrono::seconds(3));
 
+    servoShoulder.setAngle(SHOULDER_SERVO.minAngle);
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    servoShoulder.setAngle(SHOULDER_SERVO.maxAngle);
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    servoShoulder.setAngle(0);
+    std::this_thread::sleep_for(std::chrono::seconds(3));
 
-    servo.setServoAngle(ELBOW_SERVO, ELBOW_SERVO.minAngle);
+    servoElbow.setAngle(ELBOW_SERVO.minAngle);
     std::this_thread::sleep_for(std::chrono::seconds(3));
-    servo.setServoAngle(ELBOW_SERVO, ELBOW_SERVO.maxAngle);
+    servoElbow.setAngle(ELBOW_SERVO.maxAngle);
     std::this_thread::sleep_for(std::chrono::seconds(3));
-    servo.resetServos(ELBOW_SERVO);
+    servoElbow.setAngle(0);
     std::this_thread::sleep_for(std::chrono::seconds(3));
 }
 
-void interactiveTest(ServoDriver &servo)
+void interactiveTest(std::map<int, Servo *> &servoMap, std::map<int, ServoConfig> &configMap)
 {
-    std::map<int, ServoConfig> servoMap = {
-        {0, ELBOW_SERVO},
-        {1, BASE_SERVO},
-        {2, SHOULDER_SERVO}};
-
     int choice;
     float angle;
 
@@ -55,11 +50,12 @@ void interactiveTest(ServoDriver &servo)
         return;
     }
 
-    const ServoConfig &selectedServo = servoMap[choice];
+    const ServoConfig &selectedConfig = configMap[choice];
+    Servo *selectedServo = servoMap[choice];
 
     std::cout << "\nSelected channel: " << choice
-              << " (minAngle = " << selectedServo.minAngle
-              << ", maxAngle = " << selectedServo.maxAngle << ")\n";
+              << " (minAngle = " << selectedConfig.minAngle
+              << ", maxAngle = " << selectedConfig.maxAngle << ")\n";
 
     while (true)
     {
@@ -69,19 +65,38 @@ void interactiveTest(ServoDriver &servo)
         if (angle == 5)
             break;
 
-        servo.setServoAngle(selectedServo, angle);
-        // Test code for pulsewidth
-        // servo.setServoPulseUs(selectedServo.channel, static_cast<int>(angle));
+        selectedServo->setAngle(angle);
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 }
 
 int main()
 {
-    ServoDriver servo;
+    PCA9685Driver pwm;
+    pwm.begin();
+    pwm.setPWMFreq(50);
+
+    Servo servoBase(&pwm, BASE_SERVO);
+    Servo servoShoulder(&pwm, SHOULDER_SERVO);
+    Servo servoElbow(&pwm, ELBOW_SERVO);
+
+    // Map channel number to servo object
+    std::map<int, Servo *> servoMap = {
+        {0, &servoElbow},
+        {1, &servoBase},
+        {2, &servoShoulder}};
+
+    std::map<int, ServoConfig> configMap = {
+        {0, ELBOW_SERVO},
+        {1, BASE_SERVO},
+        {2, SHOULDER_SERVO}};
+
     int mode;
 
-    servo.resetServos();
+    std::cout << "Initializing servos to center..." << std::endl;
+    servoBase.setAngle(0);
+    servoShoulder.setAngle(0);
+    servoElbow.setAngle(0);
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
     std::cout << "Select mode:\n"
@@ -92,11 +107,11 @@ int main()
 
     if (mode == 1)
     {
-        interactiveTest(servo);
+        interactiveTest(servoMap, configMap);
     }
     else if (mode == 2)
     {
-        autoTest(servo);
+        autoTest(servoBase, servoShoulder, servoElbow);
     }
     else
     {
@@ -104,7 +119,9 @@ int main()
     }
 
     std::cout << "Releasing all servos..." << std::endl;
-    servo.releaseServos();
+    servoBase.setAngle(0);
+    servoShoulder.setAngle(0);
+    servoElbow.setAngle(0);
 
     return 0;
 }
