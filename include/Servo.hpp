@@ -24,7 +24,7 @@ struct ServoConfig
 /**
  * @brief Base servo configuration (rotation around vertical axis).
  * 
- * Positive angle: clockwise, negative angle: counter-clockwise
+ * Positive angle: clockwise, negative angle: counter-clockwise.
  */
 const ServoConfig BASE_SERVO = {
     .channel = 1,
@@ -35,7 +35,7 @@ const ServoConfig BASE_SERVO = {
 };
 
 /**
- * @brief Shoulder servo configuration (rotation around horizontal axis).
+ * @brief Shoulder servo configuration (rotation around shoulder joint).
  * 
  * Positive angle: arm moves forward; negative angle: arm moves backward.
  */
@@ -48,7 +48,7 @@ const ServoConfig SHOULDER_SERVO = {
 };
 
 /**
- * @brief Elbow servo configuration (rotation around horizontal axis).
+ * @brief Elbow servo configuration (rotation around elbow joint).
  * 
  * Positive angle: arm moves up; negative angle: arm moves down.
  */
