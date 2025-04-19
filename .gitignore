@@ -19,3 +19,4 @@ gomoku_robot
 *.log
 *.swp
 test_servo
+test_pca9685
