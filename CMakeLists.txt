@@ -12,6 +12,7 @@ set(SOURCES
     lib/PCA9685Driver.cpp
     lib/Servo.cpp
     lib/Pump.cpp
+    lib/Electromagnet.cpp
 )
 
 add_executable(gomoku_robot ${SOURCES})
