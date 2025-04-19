@@ -11,6 +11,7 @@ set(SOURCES
     src/main.cpp
     lib/PCA9685Driver.cpp
     lib/Servo.cpp
+    lib/Pump.cpp
 )
 
 add_executable(gomoku_robot ${SOURCES})
@@ -18,8 +19,8 @@ add_executable(gomoku_robot ${SOURCES})
 option(BUILD_TESTS "Build test programs" ON)
 if(BUILD_TESTS)
     add_executable(test_pca9685
-        tests/test_pca9685.cpp
-        lib/PCA9685Driver.cpp
+    tests/test_pca9685.cpp
+    lib/PCA9685Driver.cpp
     )
     add_executable(test_servo
     tests/test_servo.cpp
