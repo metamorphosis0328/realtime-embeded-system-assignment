@@ -23,41 +23,42 @@ struct ServoConfig
 
 /**
  * @brief Base servo configuration (rotation around vertical axis).
- * 
+ *
  * Positive angle: clockwise, negative angle: counter-clockwise.
  */
 const ServoConfig BASE_SERVO = {
     .channel = 1,
     .minAngle = -90.0f,
     .maxAngle = 90.0f,
-    .minAnglePulseUs = 2600,
-    .maxAnglePulseUs = 1000,
+    .minAnglePulseUs = 2600, // Calibrated max pulse width
+    .maxAnglePulseUs = 1000, // Calibrated min pulse width
 };
 
 /**
  * @brief Shoulder servo configuration (rotation around shoulder joint).
- * 
+ *
  * Positive angle: arm moves forward; negative angle: arm moves backward.
  */
 const ServoConfig SHOULDER_SERVO = {
     .channel = 2,
-    .minAngle = -20.0f,
-    .maxAngle = 45.0f,
-    .minAnglePulseUs = 1978, // 1800 + (800 * 20° / 90°)
-    .maxAnglePulseUs = 1400, // 1800 - (800 * 45° / 90°)
+    .minAngle = 0.0f,
+    .maxAngle = 90.0f,
+    .minAnglePulseUs = 1800, // Calibrated center pulse width
+    .maxAnglePulseUs = 1000, // Calibrated min pulse width
 };
 
 /**
  * @brief Elbow servo configuration (rotation around elbow joint).
- * 
- * Positive angle: arm moves up; negative angle: arm moves down.
+ *
+ * Positive angle: arm moves down; negative angle: arm moves up.
+ * For this servo, angle-to-pulse mapping is reversed compared to others.
  */
 const ServoConfig ELBOW_SERVO = {
     .channel = 0,
-    .minAngle = -50.0f,
-    .maxAngle = 0.0f,
-    .minAnglePulseUs = 2244, // 1800 + (800 * 50° / 90°)
-    .maxAnglePulseUs = 1800,
+    .minAngle = 0.0f,
+    .maxAngle = 75.0f,
+    .minAnglePulseUs = 1800, // Calibrated center pulse width
+    .maxAnglePulseUs = 2400, // 1800 + (800 * 75° / 90°)
 };
 
 /**

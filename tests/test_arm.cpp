@@ -4,7 +4,7 @@
 #include <thread>
 #include <chrono>
 
-void testInitializeServos(ArmController &armController)
+void autoTest(ArmController &armController)
 {
     std::cout << "Testing initialization of servos to center position...\n";
     armController.initializeServos();
@@ -13,10 +13,10 @@ void testInitializeServos(ArmController &armController)
     std::cout << "Base servo angle: 0°\n";
     std::cout << "Shoulder servo angle: 0°\n";
     std::cout << "Elbow servo angle: 0°\n";
-}
 
-void testSetAngles(ArmController &armController)
-{
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+
+    // Test setting angles for the servos
     float baseAngle = 30.0f;
     float shoulderAngle = 45.0f;
     float elbowAngle = -10.0f;
@@ -32,10 +32,10 @@ void testSetAngles(ArmController &armController)
     std::cout << "Base servo set to: " << baseAngle << "°\n";
     std::cout << "Shoulder servo set to: " << shoulderAngle << "°\n";
     std::cout << "Elbow servo set to: " << elbowAngle << "°\n";
-}
 
-void testResetServos(ArmController &armController)
-{
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+
+    // Test resetting servos to center position
     std::cout << "Testing resetting servos to center position...\n";
     armController.resetServos();
 
@@ -43,6 +43,121 @@ void testResetServos(ArmController &armController)
     std::cout << "Base servo reset to center position: 0\n";
     std::cout << "Shoulder servo reset to center position: 0\n";
     std::cout << "Elbow servo reset to center position: 0\n";
+
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+}
+
+void singleTest(ArmController &armController)
+{
+    int choice;
+    float angle;
+
+    while (true) // Main menu for servo selection
+    {
+        std::cout << "\n[Single Servo Mode] Select servo:\n"
+                  << "  0: Base\n"
+                  << "  1: Shoulder\n"
+                  << "  2: Elbow\n"
+                  << "  5: Exit\n"
+                  << "Enter servo number: ";
+        std::cin >> choice;
+
+        if (choice == 5)
+        {
+            std::cout << "Exiting manual mode.\n";
+            break;
+        }
+
+        // Map user input to servo control
+        switch (choice)
+        {
+        case 0:
+            std::cout << "Control Base Servo\n";
+            break;
+        case 1:
+            std::cout << "Control Shoulder Servo\n";
+            break;
+        case 2:
+            std::cout << "Control Elbow Servo\n";
+            break;
+        default:
+            std::cout << "Invalid selection.\n";
+            continue; // Back to main menu
+        }
+
+        while (true) // Submenu for angle setting
+        {
+            std::cout << "Enter angle (or type 5 to return to main menu): ";
+            std::cin >> angle;
+
+            if (angle == 5)
+            {
+                break; // Back to main menu
+            }
+
+            switch (choice)
+            {
+            case 0:
+                armController.setBaseAngle(angle);
+                std::cout << "Base servo set to: " << angle << "°\n";
+                break;
+            case 1:
+                armController.setShoulderAngle(angle);
+                std::cout << "Shoulder servo set to: " << angle << "°\n";
+                break;
+            case 2:
+                armController.setElbowAngle(angle);
+                std::cout << "Elbow servo set to: " << angle << "°\n";
+                break;
+            }
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
+    }
+}
+
+void freeTest(ArmController &armController)
+{
+    int servoID;
+    float angle;
+
+    std::cout << "\n[Free Mode] Control servos by typing: <servo_id> <angle>\n";
+    std::cout << "Servo IDs: 0 = Base, 1 = Shoulder, 2 = Elbow\n";
+    std::cout << "Type 5 to exit this mode.\n";
+
+    while (true)
+    {
+        std::cout << "\nEnter servo ID and angle: ";
+        std::cin >> servoID;
+
+        if (servoID == 5)
+        {
+            std::cout << "Exiting Direct Input Mode.\n";
+            break;
+        }
+
+        std::cin >> angle;
+
+        switch (servoID)
+        {
+        case 0:
+            armController.setBaseAngle(angle);
+            std::cout << "Base set to: " << angle << "°\n";
+            break;
+        case 1:
+            armController.setShoulderAngle(angle);
+            std::cout << "Shoulder set to: " << angle << "°\n";
+            break;
+        case 2:
+            armController.setElbowAngle(angle);
+            std::cout << "Elbow set to: " << angle << "°\n";
+            break;
+        default:
+            std::cout << "Invalid servo ID. Please use 0 (Base), 1 (Shoulder), or 2 (Elbow).\n";
+            break;
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
 }
 
 int main()
@@ -59,17 +174,34 @@ int main()
     // Create the ArmController with the servos
     ArmController armController(baseServo, shoulderServo, elbowServo);
 
-    // Test the basic functionality
-    testInitializeServos(armController);
-    std::this_thread::sleep_for(std::chrono::seconds(2));
+    int mode;
 
-    testSetAngles(armController);
-    std::this_thread::sleep_for(std::chrono::seconds(2));
+    std::cout << "Select mode:\n"
+              << "  [0] Free control mode\n"
+              << "  [1] Single servo control mode\n"
+              << "  [2] Automatic test mode\n"
+              << "Enter any other key to exit."
+              << "Enter: ";
+    std::cin >> mode;
 
-    testResetServos(armController);
-    std::this_thread::sleep_for(std::chrono::seconds(2));
+    if (mode == 0)
+    {
+        freeTest(armController);
+    }
+    else if (mode == 1)
+    {
+        singleTest(armController);
+    }
+    else if (mode == 2)
+    {
+        autoTest(armController);
+    }
+    else
+    {
+        std::cout << "Invalid mode selection." << std::endl;
+    }
 
-    std::cout << "Basic functionality test completed!" << std::endl;
+    std::cout << "Test completed!" << std::endl;
 
     return 0;
 }
