@@ -3,6 +3,8 @@
 
 #include "Servo.hpp"
 #include <utility>
+#include <map>
+#include <tuple>
 
 class ArmController
 {
@@ -58,10 +60,14 @@ public:
      */
     std::pair<float, float> interpolateAngles(int row, int col);
 
+    void loadLookupTable();
+    void placePieceAt(int row, int col);
+
 private:
     Servo &baseServo;
     Servo &shoulderServo;
     Servo &elbowServo;
+    std::map<std::pair<int, int>, std::tuple<float, float, float>> angleTable;
 };
 
 #endif

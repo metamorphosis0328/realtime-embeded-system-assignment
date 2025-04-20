@@ -195,7 +195,8 @@ void interpolationTest(ArmController &armController)
         std::cout << "Press 'g' to grab, anything else to skip: ";
         std::string cmd;
         std::cin >> cmd;
-        if (cmd == "g") {
+        if (cmd == "g")
+        {
             armController.setElbowAngle(45.0f);
             std::this_thread::sleep_for(std::chrono::milliseconds(300));
             armController.setElbowAngle(0.0f);
@@ -203,6 +204,34 @@ void interpolationTest(ArmController &armController)
     }
 
     std::cout << "Exiting interpolation test.\n";
+}
+
+void lookupTest(ArmController &armController)
+{
+    int row, col;
+    std::cout << "[Lookup Table Test] Input a board coordinate (row col) to test lookup-based movement.\n";
+    std::cout << "Enter \"55 5\" to quit.\n";
+
+    while (true)
+    {
+        std::cout << "Enter coordinate (row col): ";
+        std::cin >> row >> col;
+
+        if (row == 55 && col == 5)
+        {
+            std::cout << "Exiting lookup test.\n";
+            break;
+        }
+
+        if (row < 0 || row > 8 || col < 0 || col > 8)
+        {
+            std::cout << "Invalid input. Row and column must be between 0 and 7.\n";
+            continue;
+        }
+
+        std::cout << "Executing movement using angleTable...\n";
+        armController.placePieceAt(row, col);
+    }
 }
 
 int main()
@@ -226,6 +255,7 @@ int main()
               << "  [1] Single servo control mode\n"
               << "  [2] Automatic test mode\n"
               << "  [3] Interpolation test mode\n"
+              << "  [4] Lookup table test mode\n"
               << "Enter: ";
     std::cin >> mode;
 
@@ -244,6 +274,11 @@ int main()
     else if (mode == 3)
     {
         interpolationTest(armController);
+    }
+    else if (mode == 4)
+    {
+        armController.loadLookupTable();
+        lookupTest(armController);
     }
     else
     {
