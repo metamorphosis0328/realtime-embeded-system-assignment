@@ -19,7 +19,7 @@ struct ServoConfig
 // Wiring order: channel 0 (elbow), 1 (base), 2 (shoulder)
 // The min and max angles are manually set due to mechanical limits
 // Pulse width values are calibrated as follows:
-// 1800us for center (0°); 1000us for +90°; 2600us for -90°
+// 1750us for center (0°); 1000us for +90°; 2500us for -90°
 
 /**
  * @brief Base servo configuration (rotation around vertical axis).
@@ -30,7 +30,7 @@ const ServoConfig BASE_SERVO = {
     .channel = 1,
     .minAngle = -90.0f,
     .maxAngle = 90.0f,
-    .minAnglePulseUs = 2600, // Calibrated max pulse width
+    .minAnglePulseUs = 2500, // Calibrated max pulse width
     .maxAnglePulseUs = 1000, // Calibrated min pulse width
 };
 
@@ -43,7 +43,7 @@ const ServoConfig SHOULDER_SERVO = {
     .channel = 2,
     .minAngle = 0.0f,
     .maxAngle = 90.0f,
-    .minAnglePulseUs = 1800, // Calibrated center pulse width
+    .minAnglePulseUs = 1750, // Calibrated center pulse width
     .maxAnglePulseUs = 1000, // Calibrated min pulse width
 };
 
@@ -57,8 +57,8 @@ const ServoConfig ELBOW_SERVO = {
     .channel = 0,
     .minAngle = 0.0f,
     .maxAngle = 75.0f,
-    .minAnglePulseUs = 1800, // Calibrated center pulse width
-    .maxAnglePulseUs = 2400, // 1800 + (800 * 75° / 90°)
+    .minAnglePulseUs = 1750, // Calibrated center pulse width
+    .maxAnglePulseUs = 2375, // 1750 + (750 * 75° / 90°)
 };
 
 /**
