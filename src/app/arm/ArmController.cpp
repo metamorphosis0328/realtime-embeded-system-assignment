@@ -57,44 +57,63 @@ void ArmController::setElbowAngle(float angle)
 }
 
 /**
+ * @brief Manually cordinated grid for 9 points
+ * Each tuple records a set of servo angles:
+ * std::tuple<float, float, float> { baseAngle, shoulderAngle, elbowAngle }
+ * The grid is as follows:
+ * (0, 0) ... (0, 4) ... (0, 8)
+ *  ...
+ * (4, 0) ... (4, 4) ... (4, 8)
+ *  ...
+ * (8, 0) ... (8, 4) ... (8, 8)
+ */
+const std::array<std::array<std::tuple<float, float, float>, 3>, 3> ArmController::cordinatedGrid =
+    {{
+        { { {-15.0f, 75.0f, 20.0f}, {0.0f, 70.0f, 25.0f}, {15.0f, 75.0f, 20.0f} }, }, // Top
+        { { {-15.5f, 65.0f, 30.0f}, {0.0f, 62.5f, 32.5f}, {15.5f, 65.0f, 30.0f} }, }, // Middle
+        { { {-25.0f, 30.0f, 65.0f}, {0.0f, 25.0f, 70.0f}, {30.0f, 30.0f, 65.0f} }, }, // Bottom 
+    }};
+
+/**
  * @brief Interpolates servo angles based on row/col position using bilinear interpolation.
- * The board is a 9*9 with calibrated corner angles.
+ * Calculate the 3 servo angles via bilinear interpolation to manually cordinated grid.
  *
  * @param row Row index [0, 8]
  * @param col Column index [0, 8]
- * @return std::pair<float, float> { baseAngle, shoulderAngle }
+ * @return std::tuple<float, float, float> { baseAngle, shoulderAngle, elbowAngle }
  */
-std::pair<float, float> ArmController::interpolateAngles(int row, int col)
+std::tuple<float, float, float> ArmController::interpolateAngles(int row, int col)
 {
-    // Normalized position
-    const int BOARD_SIZE = 9;
-    float t_row = static_cast<float>(row) / (BOARD_SIZE - 1);
-    float t_col = static_cast<float>(col) / (BOARD_SIZE - 1);
+    const int GRID_SIZE = 9;
+    float t_row = static_cast<float>(row) / (GRID_SIZE - 1);
+    float t_col = static_cast<float>(col) / (GRID_SIZE - 1);
 
-    // === Calibrated corner values ===
-    // Base angles
-    float base_tl = -30.0f; // top-left (0, 0)
-    float base_tr = 30.0f;  // top-right (0, 8)
-    float base_bl = -30.0f; // bottom-left (8, 0)
-    float base_br = 30.0f;  // bottom-right (8, 8)
+    auto interpolate = [](const std::tuple<float, float, float>& a,
+                          const std::tuple<float, float, float>& b,
+                          float t) -> std::tuple<float, float, float> {
+        float a1, a2, a3, b1, b2, b3;
+        std::tie(a1, a2, a3) = a;
+        std::tie(b1, b2, b3) = b;
+        return {
+            a1 + (b1 - a1) * t,
+            a2 + (b2 - a2) * t,
+            a3 + (b3 - a3) * t
+        };
+    };
 
-    // Shoulder angles
-    float sh_tl = 60.0f; // top-left
-    float sh_tr = 60.0f; // top-right
-    float sh_bl = 15.0f; // bottom-left
-    float sh_br = 15.0f; // bottom-right
+    std::tuple<float, float, float> top, middle, bottom, final;
 
-    // Interpolate base angle
-    float base_top = base_tl * (1 - t_col) + base_tr * t_col;
-    float base_bot = base_bl * (1 - t_col) + base_br * t_col;
-    float baseAngle = base_top * (1 - t_row) + base_bot * t_row;
+    if (t_row <= 0.5f) {
+        top = interpolate(cordinatedGrid[0][0], cordinatedGrid[0][1], t_col * 2);
+        middle = interpolate(cordinatedGrid[1][0], cordinatedGrid[1][1], t_col * 2);
+        final = interpolate(top, middle, t_row * 2);
+    } else {
+        middle = interpolate(cordinatedGrid[1][0], cordinatedGrid[1][1], t_col * 2);
+        bottom = interpolate(cordinatedGrid[2][0], cordinatedGrid[2][1], t_col * 2);
+        final = interpolate(middle, bottom, (t_row - 0.5f) * 2);
+    }
 
-    // Interpolate shoulder angle
-    float sh_top = sh_tl * (1 - t_col) + sh_tr * t_col;
-    float sh_bot = sh_bl * (1 - t_col) + sh_br * t_col;
-    float shoulderAngle = sh_top * (1 - t_row) + sh_bot * t_row;
-
-    return {baseAngle, shoulderAngle};
+    return final;
 }
 
 void ArmController::loadLookupTable()
