@@ -160,6 +160,51 @@ void freeTest(ArmController &armController)
     }
 }
 
+void interpolationTest(ArmController &armController)
+{
+    int row, col;
+
+    std::cout << "[Interpolation Test] Input a board coordinate to compute angles.\n";
+    std::cout << "Enter \"55 5\" to quit.\n";
+
+    while (true)
+    {
+        std::cout << "Enter coordinate (row col): ";
+        std::cin >> row >> col;
+
+        // 退出条件
+        if (row == 55 && col == 5)
+            break;
+
+        // 输入合法性检查
+        if (row < 0 || row > 8 || col < 0 || col > 8)
+        {
+            std::cout << "Invalid input. Row and column must be between 0 and 8.\n";
+            continue;
+        }
+
+        auto [base, shoulder] = armController.interpolateAngles(row, col);
+
+        std::cout << "Interpolated base angle: " << base << "°\n";
+        std::cout << "Interpolated shoulder angle: " << shoulder << "°\n";
+
+        armController.setBaseAngle(base);
+        armController.setShoulderAngle(shoulder);
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+        std::cout << "Press 'g' to grab, anything else to skip: ";
+        std::string cmd;
+        std::cin >> cmd;
+        if (cmd == "g") {
+            armController.setElbowAngle(45.0f);
+            std::this_thread::sleep_for(std::chrono::milliseconds(300));
+            armController.setElbowAngle(0.0f);
+        }
+    }
+
+    std::cout << "Exiting interpolation test.\n";
+}
+
 int main()
 {
     // Initialize the PCA9685Driver and servos
@@ -180,7 +225,7 @@ int main()
               << "  [0] Free control mode\n"
               << "  [1] Single servo control mode\n"
               << "  [2] Automatic test mode\n"
-              << "Enter any other key to exit."
+              << "  [3] Interpolation test mode\n"
               << "Enter: ";
     std::cin >> mode;
 
@@ -195,6 +240,10 @@ int main()
     else if (mode == 2)
     {
         autoTest(armController);
+    }
+    else if (mode == 3)
+    {
+        interpolationTest(armController);
     }
     else
     {

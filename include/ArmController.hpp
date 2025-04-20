@@ -2,6 +2,7 @@
 #define ARMCONTROLLER_HPP
 
 #include "Servo.hpp"
+#include <utility>
 
 class ArmController
 {
@@ -48,6 +49,14 @@ public:
      * @brief Reset all servos to their initial positions.
      */
     void resetServos();
+
+    /* @brief Compute the servo angles for a given board position using bilinear interpolation.
+     *
+     * @param row Row index on the board (0–8). 0 is the top row, 8 is the bottom.
+     * @param col Col index on the board (0–8). 0 is the leftmost column, 8 is the rightmost.
+     * @return std::pair<float, float> { baseAngle, shoulderAngle }
+     */
+    std::pair<float, float> interpolateAngles(int row, int col);
 
 private:
     Servo &baseServo;
