@@ -15,39 +15,40 @@ int main()
 
     pwm.setPWMFreq(50);
 
+    std::cout << "[PWM Pulse Width Test Mode]\n";
+    std::cout << "Enter: <channel> <pulseWidthUs>  (e.g. 0 1500)\n";
+    std::cout << "Enter: 55 to exit.\n";
+
     int channel;
-    std::cout << "Enter the PCA9685 channel to test (0–15): ";
-    std::cin >> channel;
+    float pulseWidthUs;
 
-    if (channel < 0 || channel > 15)
+    while (true)
     {
-        std::cerr << "Invalid channel number. Must be between 0 and 15." << std::endl;
-        return 1;
-    }
+        std::cout << "\n> ";
+        std::cin >> channel;
 
-    const float PWM_ON_US = 2500.0f;
-    const float PWM_OFF_US = 500.0f;
+        if (channel == 55)
+            break;
 
-    std::cout << "Testing channel " << channel << " with pulse widths 2500us and 500us" << std::endl;
+        std::cin >> pulseWidthUs;
 
-    try
-    {
-        while (true)
+        if (channel < 0 || channel > 15)
         {
-            std::cout << "Setting pulse width to 2500us (ON)" << std::endl;
-            pwm.setPulseWidth(channel, PWM_ON_US);
-            std::this_thread::sleep_for(std::chrono::seconds(3));
-
-            std::cout << "Setting pulse width to 500us (OFF)" << std::endl;
-            pwm.setPulseWidth(channel, PWM_OFF_US);
-            std::this_thread::sleep_for(std::chrono::seconds(3));
+            std::cerr << "Invalid channel (0–15).\n";
+            continue;
         }
-    }
-    catch (...)
-    {
-        std::cerr << "Exception caught. Exiting test." << std::endl;
-        return 1;
+
+        if (pulseWidthUs < 400 || pulseWidthUs > 2700)
+        {
+            std::cerr << "Warning: " << pulseWidthUs << "us may be outside safe range for servos.\n";
+        }
+
+        pwm.setPulseWidth(channel, pulseWidthUs);
+        std::cout << "Set channel " << channel << " to " << pulseWidthUs << "us.\n";
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
 
+    std::cout << "Test session ended.\n";
     return 0;
 }
