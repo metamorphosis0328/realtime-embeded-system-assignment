@@ -1,10 +1,12 @@
 #include "Servo.hpp"
 #include <algorithm>
+#include <thread>
 
-Servo::Servo(PCA9685Driver* driver, const ServoConfig& cfg)
-    : pca(driver), config(cfg) {}
+Servo::Servo(PCA9685Driver *driver, const ServoConfig &config)
+    : pca(driver), config(config), currentAngle(0.0f) {}
 
-void Servo::setAngle(float angle) {
+void Servo::setAngle(float angle)
+{
     // Clamp angle within allowed range
     angle = std::clamp(angle, config.minAngle, config.maxAngle);
 
@@ -13,4 +15,29 @@ void Servo::setAngle(float angle) {
     float pulseUs = config.minAnglePulseUs + ratio * (config.maxAnglePulseUs - config.minAnglePulseUs);
 
     pca->setPulseWidth(config.channel, pulseUs);
+}
+
+void Servo::setAngleSmoothly(float targetAngle, float step, int delayMs)
+{
+    float current = this->currentAngle;
+
+    if (targetAngle > current)
+    {
+        for (float a = current; a < targetAngle; a += step)
+        {
+            setAngle(a);
+            std::this_thread::sleep_for(std::chrono::milliseconds(delayMs));
+        }
+    }
+    else
+    {
+        for (float a = current; a > targetAngle; a -= step)
+        {
+            setAngle(a);
+            std::this_thread::sleep_for(std::chrono::milliseconds(delayMs));
+        }
+    }
+
+    setAngle(targetAngle);
+    this->currentAngle = targetAngle;
 }

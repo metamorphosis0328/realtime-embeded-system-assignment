@@ -9,25 +9,25 @@
 
 void autoTest(Servo &servoBase, Servo &servoShoulder, Servo &servoElbow)
 {
-    servoBase.setAngle(BASE_SERVO.minAngle);
+    servoBase.setAngleSmoothly(BASE_SERVO.minAngle);
     std::this_thread::sleep_for(std::chrono::seconds(3));
-    servoBase.setAngle(BASE_SERVO.maxAngle);
+    servoBase.setAngleSmoothly(BASE_SERVO.maxAngle);
     std::this_thread::sleep_for(std::chrono::seconds(3));
-    servoBase.setAngle(0); // reset to center
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-
-    servoShoulder.setAngle(SHOULDER_SERVO.minAngle);
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-    servoShoulder.setAngle(SHOULDER_SERVO.maxAngle);
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-    servoShoulder.setAngle(0);
+    servoBase.setAngleSmoothly(0); // reset to center
     std::this_thread::sleep_for(std::chrono::seconds(3));
 
-    servoElbow.setAngle(ELBOW_SERVO.minAngle);
+    servoShoulder.setAngleSmoothly(SHOULDER_SERVO.minAngle);
     std::this_thread::sleep_for(std::chrono::seconds(3));
-    servoElbow.setAngle(ELBOW_SERVO.maxAngle);
+    servoShoulder.setAngleSmoothly(SHOULDER_SERVO.maxAngle);
     std::this_thread::sleep_for(std::chrono::seconds(3));
-    servoElbow.setAngle(0);
+    servoShoulder.setAngleSmoothly(0);
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+
+    servoElbow.setAngleSmoothly(ELBOW_SERVO.minAngle);
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    servoElbow.setAngleSmoothly(ELBOW_SERVO.maxAngle);
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    servoElbow.setAngleSmoothly(0);
     std::this_thread::sleep_for(std::chrono::seconds(3));
 }
 
@@ -65,7 +65,7 @@ void interactiveTest(std::map<int, Servo *> &servoMap, std::map<int, ServoConfig
         if (angle == 5)
             break;
 
-        selectedServo->setAngle(angle);
+        selectedServo->setAngleSmoothly(angle);
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 }
@@ -94,9 +94,9 @@ int main()
     int mode;
 
     std::cout << "Initializing servos to center..." << std::endl;
-    servoBase.setAngle(0);
-    servoShoulder.setAngle(0);
-    servoElbow.setAngle(0);
+    servoBase.setAngleSmoothly(0);
+    servoShoulder.setAngleSmoothly(0);
+    servoElbow.setAngleSmoothly(0);
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
     std::cout << "Select mode:\n"
@@ -119,9 +119,9 @@ int main()
     }
 
     std::cout << "Releasing all servos..." << std::endl;
-    servoBase.setAngle(0);
-    servoShoulder.setAngle(0);
-    servoElbow.setAngle(0);
+    servoBase.setAngleSmoothly(0);
+    servoShoulder.setAngleSmoothly(0);
+    servoElbow.setAngleSmoothly(0);
 
     return 0;
 }

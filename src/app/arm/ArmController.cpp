@@ -18,9 +18,14 @@ ArmController::ArmController(Servo &base, Servo &shoulder, Servo &elbow)
  */
 void ArmController::initializeServos()
 {
-    baseServo.setAngle(0.0f);
-    shoulderServo.setAngle(0.0f);
-    elbowServo.setAngle(0.0f);
+    elbowServo.setAngleSmoothly(0.0f);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    shoulderServo.setAngleSmoothly(0.0f);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    baseServo.setAngleSmoothly(0.0f);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
 }
 
 /**
@@ -31,7 +36,7 @@ void ArmController::initializeServos()
  */
 void ArmController::setBaseAngle(float angle)
 {
-    baseServo.setAngle(angle);
+    baseServo.setAngleSmoothly(angle);
 }
 
 /**
@@ -42,7 +47,7 @@ void ArmController::setBaseAngle(float angle)
  */
 void ArmController::setShoulderAngle(float angle)
 {
-    shoulderServo.setAngle(angle);
+    shoulderServo.setAngleSmoothly(angle);
 }
 
 /**
@@ -53,7 +58,7 @@ void ArmController::setShoulderAngle(float angle)
  */
 void ArmController::setElbowAngle(float angle)
 {
-    elbowServo.setAngle(angle);
+    elbowServo.setAngleSmoothly(angle);
 }
 
 /**
@@ -236,7 +241,12 @@ void ArmController::placePieceAt(int row, int col)
  */
 void ArmController::resetServos()
 {
-    baseServo.setAngle(0.0f);
-    shoulderServo.setAngle(0.0f);
-    elbowServo.setAngle(0.0f);
+    elbowServo.setAngleSmoothly(0.0f);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    shoulderServo.setAngleSmoothly(0.0f);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    baseServo.setAngleSmoothly(0.0f);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
 }
