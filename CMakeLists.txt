@@ -22,7 +22,8 @@ set(SOURCES
     src/driver/Pump.cpp
     src/driver/Electromagnet.cpp
     src/app/arm/ArmController.cpp
-    # src/app/camera/GomokuVision.cpp
+    src/app/camera/GomokuVision.cpp
+    src/app/algorithm/GomokuAI.cpp
 )
 
 add_executable(gomoku_robot ${SOURCES})
@@ -50,9 +51,16 @@ if(BUILD_TESTS)
     src/app/arm/ArmController.cpp
     )
 
-    # add_executable(test_vision
+    # add_executable(test_vision_ai
     # tests/test_vision.cpp
     # src/app/camera/GomokuVision.cpp
     # )
     # target_link_libraries(test_vision ${OpenCV_LIBRARIES}) # OpenCV
+
+    add_executable(test_ai
+    tests/test_ai.cpp
+    src/app/camera/GomokuVision.cpp
+    src/app/algorithm/GomokuAI.cpp
+    )
+    target_link_libraries(test_ai ${OpenCV_LIBRARIES}) # OpenCV
 endif()
