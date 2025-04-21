@@ -215,6 +215,8 @@ void lookupTest(ArmController &armController)
         if (row == 55 && col == 5)
         {
             std::cout << "Exiting lookup test.\n";
+            armController.resetServos();
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
             break;
         }
 

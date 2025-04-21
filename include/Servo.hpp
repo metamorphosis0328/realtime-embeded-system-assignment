@@ -87,7 +87,7 @@ public:
      * @param step Size of each angle increment in degrees (e.g., 10.0f means move in 10° steps).
      * @param delayMs Delay in milliseconds between each step (e.g., 10ms per step).
      */
-    void setAngleSmoothly(float targetAngle, float step = 15.0f, int delayMs = 50);
+    void setAngleSmoothly(float targetAngle, float step = 10.0f, int delayMs = 50);
 
     /**
      * @brief Get the current stored angle of the servo.
