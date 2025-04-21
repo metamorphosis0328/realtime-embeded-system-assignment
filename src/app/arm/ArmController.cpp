@@ -2,6 +2,7 @@
 #include <thread>
 #include <chrono>
 #include <iostream>
+#include <math.h>
 
 /**
  * @brief Construct a new ArmController object.
@@ -75,14 +76,14 @@ void ArmController::setElbowAngle(float angle)
 const std::array<std::array<std::tuple<float, float, float>, 3>, 3> ArmController::cordinatedGrid =
     {{
         {
-            {{-15.0f, 75.0f, 20.0f}, {0.0f, 70.0f, 25.0f}, {15.0f, 75.0f, 20.0f}},
-        }, // Top
+            {{-15.0f, 75.0f, 20.0f}, {0.0f, 70.0f, 25.0f}, {15.0f, 75.0f, 20.0f}}, // Top
+        },
         {
-            {{-15.5f, 65.0f, 30.0f}, {0.0f, 62.5f, 32.5f}, {15.5f, 65.0f, 30.0f}},
-        }, // Middle
+            {{-22.5f, 45.0f, 55.0f}, {0.0f, 45.0f, 55.0f}, {20.0f, 45.0f, 55.0f}}, // Middle
+        },
         {
-            {{-25.0f, 30.0f, 65.0f}, {0.0f, 25.0f, 70.0f}, {30.0f, 30.0f, 65.0f}},
-        }, // Bottom
+            {{-25.0f, 30.0f, 65.0f}, {0.0f, 25.0f, 70.0f}, {30.0f, 30.0f, 65.0f}}, // Bottom
+        },
     }};
 
 /**
@@ -95,9 +96,22 @@ const std::array<std::array<std::tuple<float, float, float>, 3>, 3> ArmControlle
  */
 std::tuple<float, float, float> ArmController::interpolateAngles(int row, int col)
 {
-    const int GRID_SIZE = 9;
-    float t_row = static_cast<float>(row) / (GRID_SIZE - 1);
-    float t_col = static_cast<float>(col) / (GRID_SIZE - 1);
+    constexpr int GRID_SIZE = 9;
+    constexpr int GRID_DIV = 3;
+
+    float t_row = static_cast<float>(row) / (GRID_SIZE - 1); // 0.0 ~ 1.0
+    float t_col = static_cast<float>(col) / (GRID_SIZE - 1); // 0.0 ~ 1.0
+
+    float gridRowF = t_row * (GRID_DIV - 1); // scale to 0.0 ~ 2.0
+    float gridColF = t_col * (GRID_DIV - 1); // same here
+
+    int r0 = static_cast<int>(std::floor(gridRowF));
+    int c0 = static_cast<int>(std::floor(gridColF));
+    int r1 = std::min(r0 + 1, GRID_DIV - 1);
+    int c1 = std::min(c0 + 1, GRID_DIV - 1);
+
+    float fr = gridRowF - r0; // fractional row part
+    float fc = gridColF - c0; // fractional col part
 
     auto interpolate = [](const std::tuple<float, float, float> &a,
                           const std::tuple<float, float, float> &b,
@@ -112,20 +126,14 @@ std::tuple<float, float, float> ArmController::interpolateAngles(int row, int co
             a3 + (b3 - a3) * t};
     };
 
-    std::tuple<float, float, float> top, middle, bottom, final;
+    auto q11 = cordinatedGrid[r0][c0];
+    auto q21 = cordinatedGrid[r0][c1];
+    auto q12 = cordinatedGrid[r1][c0];
+    auto q22 = cordinatedGrid[r1][c1];
 
-    if (t_row <= 0.5f)
-    {
-        top = interpolate(cordinatedGrid[0][0], cordinatedGrid[0][1], t_col * 2);
-        middle = interpolate(cordinatedGrid[1][0], cordinatedGrid[1][1], t_col * 2);
-        final = interpolate(top, middle, t_row * 2);
-    }
-    else
-    {
-        middle = interpolate(cordinatedGrid[1][0], cordinatedGrid[1][1], t_col * 2);
-        bottom = interpolate(cordinatedGrid[2][0], cordinatedGrid[2][1], t_col * 2);
-        final = interpolate(middle, bottom, (t_row - 0.5f) * 2);
-    }
+    auto top = interpolate(q11, q21, fc);      // left to right on top
+    auto bottom = interpolate(q12, q22, fc);   // left to right on bottom
+    auto final = interpolate(top, bottom, fr); // top to bottom
 
     return final;
 }

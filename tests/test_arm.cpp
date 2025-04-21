@@ -188,11 +188,11 @@ void interpolationTest(ArmController &armController)
         std::cout << "Interpolated elbow angle: " << elbow << "°\n";
 
         armController.setBaseAngle(base);
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
         armController.setShoulderAngle(shoulder);
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
         armController.setElbowAngle(elbow);
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
         armController.resetServos();
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
