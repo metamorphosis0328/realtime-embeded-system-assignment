@@ -83,7 +83,6 @@ private:
     Servo &baseServo;
     Servo &shoulderServo;
     Servo &elbowServo;
-    std::map<std::pair<int, int>, std::tuple<float, float, float>> angleTable;
     static const std::array<std::array<std::tuple<float, float, float>, 3>, 3> cordinatedGrid;
 
     // Pump and electromagnetic components
