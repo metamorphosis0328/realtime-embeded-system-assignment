@@ -40,7 +40,7 @@ int main()
     try
     {
         // Initialize ai module
-        GomokuAI ai(BOARD_SIZE);
+        GomokuAI ai(LINE_NUM);
 
         // Initialize arm module
         ArmController& arm = createArmController();

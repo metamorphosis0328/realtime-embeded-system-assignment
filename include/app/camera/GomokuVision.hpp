@@ -15,6 +15,7 @@ public:
 class GomokuVision {
 public:
     GomokuVision(int camera_id = 0, int board_size = 600, int grid_lines = 9);
+    ~GomokuVision();
     void registerCallback(PieceEventCallback* cb);
     void run();
 

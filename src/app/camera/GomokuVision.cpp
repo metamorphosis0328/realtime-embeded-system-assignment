@@ -14,6 +14,16 @@ GomokuVision::GomokuVision(int camera_id, int board_size, int grid_lines)
     board_state = vector<vector<int>>(grid_lines, vector<int>(grid_lines, 0));
 }
 
+GomokuVision::~GomokuVision()
+{
+    std::cout << "[Vision] Cleaning up camera resources...\n";
+    if (cap.isOpened())
+    {
+        cap.release();
+    }
+    destroyAllWindows();
+}
+
 void GomokuVision::registerCallback(PieceEventCallback* cb) {
     callbacks.push_back(cb);
 }
@@ -23,17 +33,17 @@ void GomokuVision::run() {
     const int FRAME_SKIP = 2;
 
     while (true) {
-        Mat frame;
+                Mat frame;
         cap >> frame;
-        if (frame.empty()) continue;
+if (frame.empty()) continue;
 
         Mat warped = detectBoard(frame);
         if (warped.empty()) continue;
-
+        
         frame_count++;
         if (frame_count % FRAME_SKIP != 0) continue;
 
-        auto pieces = detectPieces(warped);
+                auto pieces = detectPieces(warped);
         std::set<std::pair<int, int>> current_detected;
 
         for (auto& [row, col, color] : pieces) {
@@ -69,8 +79,9 @@ void GomokuVision::run() {
             }
         }
 
-        imshow("Warped Board", warped);
-        if (waitKey(10) == 27) break;
+        // Debugging code
+        // imshow("Warped Board", warped);
+        // if (waitKey(10) == 27) break;
     }
     cap.release();
     destroyAllWindows();

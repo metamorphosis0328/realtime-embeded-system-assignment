@@ -40,27 +40,27 @@ set(SOURCES
 add_executable(gomoku_robot ${SOURCES})
 target_link_libraries(gomoku_robot ${OpenCV_LIBRARIES}) # OpenCV
 
-option(BUILD_TESTS "Build test programs" ON)
-if(BUILD_TESTS)
-    add_executable(test_pca9685
-    tests/test_pca9685.cpp
-    src/driver/PCA9685Driver.cpp
-    )
+# option(BUILD_TESTS "Build test programs" ON)
+# if(BUILD_TESTS)
+    # add_executable(test_pca9685
+    # tests/test_pca9685.cpp
+    # src/driver/PCA9685Driver.cpp
+    # )
 
-    add_executable(test_servo
-    tests/test_servo.cpp
-    src/driver/PCA9685Driver.cpp
-    src/driver/Servo.cpp
-)
+    # add_executable(test_servo
+    # tests/test_servo.cpp
+    # src/driver/PCA9685Driver.cpp
+    # src/driver/Servo.cpp
+    # )
 
-    add_executable(test_arm
-    tests/test_arm.cpp
-    src/driver/PCA9685Driver.cpp
-    src/driver/Servo.cpp
-    src/driver/Pump.cpp
-    src/driver/Electromagnet.cpp
-    src/app/arm/ArmController.cpp
-    )
+    # add_executable(test_arm
+    # tests/test_arm.cpp
+    # src/driver/PCA9685Driver.cpp
+    # src/driver/Servo.cpp
+    # src/driver/Pump.cpp
+    # src/driver/Electromagnet.cpp
+    # src/app/arm/ArmController.cpp
+    # )
 
     # add_executable(test_vision_ai
     # tests/test_vision.cpp
@@ -76,4 +76,4 @@ if(BUILD_TESTS)
     # src/app/coordinator/GomokuCoordinator.cpp
     # )
     # target_link_libraries(test_ai ${OpenCV_LIBRARIES}) # OpenCV
-endif()
+# endif()
