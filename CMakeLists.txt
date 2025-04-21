@@ -7,7 +7,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_compile_options(-Wno-deprecated-enum-enum-conversion) # Ignore OpenCV warning due to C++20
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+# Include Directories
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/app
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/app/arm
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/app/camera
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/app/algorithm
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/app/coordinator
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/driver
+)
 
 find_package(PkgConfig REQUIRED) # OpenCV
 pkg_check_modules(OpenCV REQUIRED opencv4) # OpenCV
