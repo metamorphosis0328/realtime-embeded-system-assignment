@@ -24,6 +24,7 @@ set(SOURCES
     src/app/arm/ArmController.cpp
     src/app/camera/GomokuVision.cpp
     src/app/algorithm/GomokuAI.cpp
+    src/app/coordinator/GomokuCoordinator.cpp
 )
 
 add_executable(gomoku_robot ${SOURCES})
@@ -61,6 +62,7 @@ if(BUILD_TESTS)
     tests/test_ai.cpp
     src/app/camera/GomokuVision.cpp
     src/app/algorithm/GomokuAI.cpp
+    src/app/coordinator/GomokuCoordinator.cpp
     )
     target_link_libraries(test_ai ${OpenCV_LIBRARIES}) # OpenCV
 endif()
