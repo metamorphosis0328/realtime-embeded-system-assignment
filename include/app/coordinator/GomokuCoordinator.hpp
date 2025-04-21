@@ -3,6 +3,7 @@
 
 #include "GomokuAI.hpp"
 #include "GomokuVision.hpp"
+#include "ArmController.hpp"
 #include <string>
 
 /**
@@ -14,7 +15,7 @@
 class GomokuCoordinator : public PieceEventCallback
 {
 public:
-    GomokuCoordinator(GomokuAI &ai, int ai_player);
+    GomokuCoordinator(GomokuAI &ai, int ai_player, ArmController *arm);
 
     void onNewPieceDetected(int row, int col, const std::string &color) override;
 
@@ -22,5 +23,6 @@ private:
     GomokuAI &ai;
     const int ai_player;
     const int human_player;
+    ArmController *armController;
 };
 #endif

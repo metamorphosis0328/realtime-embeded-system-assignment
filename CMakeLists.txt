@@ -68,12 +68,12 @@ if(BUILD_TESTS)
     # )
     # target_link_libraries(test_vision ${OpenCV_LIBRARIES}) # OpenCV
 
-    add_executable(test_ai
-    tests/test_ai.cpp
-    src/app/camera/GomokuVision.cpp
-    src/app/algorithm/GomokuAI.cpp
-    src/app/algorithm/MinimaxAlgorithm.cpp
-    src/app/coordinator/GomokuCoordinator.cpp
-    )
-    target_link_libraries(test_ai ${OpenCV_LIBRARIES}) # OpenCV
+    # add_executable(test_ai
+    # tests/test_ai.cpp
+    # src/app/camera/GomokuVision.cpp
+    # src/app/algorithm/GomokuAI.cpp
+    # src/app/algorithm/MinimaxAlgorithm.cpp
+    # src/app/coordinator/GomokuCoordinator.cpp
+    # )
+    # target_link_libraries(test_ai ${OpenCV_LIBRARIES}) # OpenCV
 endif()

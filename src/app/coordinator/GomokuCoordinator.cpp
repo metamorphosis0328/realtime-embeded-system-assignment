@@ -1,8 +1,8 @@
 #include "GomokuCoordinator.hpp"
 #include <iostream>
 
-GomokuCoordinator::GomokuCoordinator(GomokuAI &ai, int ai_player)
-    : ai(ai), ai_player(ai_player), human_player(3 - ai_player) {}
+GomokuCoordinator::GomokuCoordinator(GomokuAI &ai, int ai_player, ArmController *arm)
+    : ai(ai), ai_player(ai_player), human_player(3 - ai_player), armController(arm) {}
 
 void GomokuCoordinator::onNewPieceDetected(int row, int col, const std::string &color)
 {
@@ -24,6 +24,14 @@ void GomokuCoordinator::onNewPieceDetected(int row, int col, const std::string &
     {
         auto [ai_row, ai_col] = ai.getBestMove();
         std::cout << "[AI] Decided move: (" << ai_row << ", " << ai_col << ")\n";
+
+        if (armController)
+        {
+            std::cout << "[ARM] Executing move...\n";
+            armController->grip();
+            armController->placePieceAt(ai_row, ai_col);
+            armController->release();
+        }
 
         ai.updateBoard(ai_row, ai_col, ai_player);
 
