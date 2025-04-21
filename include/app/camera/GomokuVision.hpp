@@ -37,7 +37,7 @@ private:
     };
 
     std::map<std::pair<int, int>, PieceCandidate> piece_candidates;
-    const int FRAME_THRESHOLD = 5;  // 连续检测帧数增加到5帧，降低误报率
+    const int FRAME_THRESHOLD = 2; // Confirm piece only if the same color is detected at the same position for multiple frames
 };
 
 #endif

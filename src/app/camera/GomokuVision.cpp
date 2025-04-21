@@ -187,5 +187,5 @@ std::string GomokuVision::detectPieceColor(const cv::Mat& bgr, int x, int y, int
     float intensity = mean_val[0];
     if (intensity < 90) return "black";
     if (intensity > 110) return "white";
-    return "white";
+    return "none";
 }
