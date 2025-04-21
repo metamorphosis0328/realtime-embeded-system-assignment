@@ -104,8 +104,8 @@ void GomokuVision::run() {
         }
 
         // Debugging code
-        imshow("Warped Board", warped);
-        if (waitKey(10) == 27) break;
+        // imshow("Warped Board", warped);
+        // if (waitKey(10) == 27) break;
     }
     cap.release();
     destroyAllWindows();

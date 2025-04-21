@@ -1,5 +1,6 @@
 #include "GomokuCoordinator.hpp"
 #include <iostream>
+#include <thread>
 
 GomokuCoordinator::GomokuCoordinator(GomokuAI &ai, int ai_player, ArmController *arm)
     : ai(ai), ai_player(ai_player), human_player(3 - ai_player), armController(arm) {}
@@ -17,10 +18,16 @@ void GomokuCoordinator::onNewPieceDetected(int row, int col, const std::string &
         return;
     }
 
-    int human_count = ai.countPieces(human_player);
-    int ai_count = ai.countPieces(ai_player);
+    int black_count = ai.countPieces(1);
+    int white_count = ai.countPieces(2);
+    int total_pieces = black_count + white_count;
 
-    if (human_count == ai_count + 1)
+    // It's AI's turn if:
+    //     total pieces are even and AI is black (goes first)
+    //     or total pieces are odd and AI is white (goes second, by default)
+    bool is_ai_turn = ( (total_pieces % 2 == 0 && ai_player == 1) ||
+                        (total_pieces % 2 == 1 && ai_player == 2) );
+    if (is_ai_turn)
     {
         auto [ai_row, ai_col] = ai.getBestMove();
         std::cout << "[AI] Decided move: (" << ai_row << ", " << ai_col << ")\n";
@@ -28,9 +35,10 @@ void GomokuCoordinator::onNewPieceDetected(int row, int col, const std::string &
         if (armController)
         {
             std::cout << "[ARM] Executing move...\n";
-            armController->gripNewPiece();
+            // armController->gripNewPiece();
             armController->placePieceAt(ai_row, ai_col);
-            armController->release();
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+            // armController->release();
             armController->resetServos();
         }
 
