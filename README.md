@@ -1,65 +1,107 @@
-📚 目录
-项目简介
+# Gomoku AI Robot System
 
-项目模块
+This project is a real-time embedded system developed as part of the **ENG5220 Real-Time Embedded Programming** coursework. It features an autonomous Gomoku-playing robot that integrates computer vision, AI-based decision-making, and robotic arm control. The system utilizes **event-driven callbacks**, **blocking I/O**, and **multi-threaded** design to detect human moves via a camera, compute the best counter-move using a Minimax-based AI engine, and place pieces physically using a servo-driven robotic arm.
 
-技术栈
+---
 
-安装与运行
+## Features
 
-项目结构
+- **AI Module**: Implements a Minimax-based algorithm to determine the best move based on real-time board updates.
 
-开源协议
+- **Vision System (Event-Driven)**: Continuously captures board state using OpenCV and uses callbacks to notify other components when a new piece is detected.
 
-联系方式
+- **Robotic Arm**: Places pieces using servo motors and a suction-based gripping mechanism. Uses bilinear interpolation to map coordinates to servo angles.
 
-1.项目简介
+- **Real-Time Coordination (with Callbacks & Blocking I/O)**: Uses blocking I/O for efficient thread management in servo control. Also employs a callback registration mechanism to decouple vision detection from AI and control logic, enabling a responsive and modular design.
 
-一个基于 C++ 的五子棋机器人项目，运行在 树莓派 + Linux 平台上，集成 摄像头图像识别（OpenCV）、AI 决策算法 和 PCA9685 控制机械臂落子，实现实体五子棋的人机对战。
+---
 
-2.项目模块
+## Architecture
 
-📷 图像识别模块
-通过树莓派连接摄像头，使用 OpenCV 识别棋盘上的落子位置；
+```
+.
+├── include
+│   ├── app
+│   │   ├── algorithm
+│   │   ├── arm
+│   │   ├── camera
+│   │   └── coordinator
+│   └── driver
+├── src
+│   ├── app
+│   │   ├── algorithm
+│   │   ├── arm
+│   │   ├── camera
+│   │   └── coordinator
+│   ├── driver
+│   └── main.cpp
+```
 
-将棋盘状态转换为二维数组，供 AI 使用；
+---
 
-可进行图像校正、颜色提取、棋子检测等处理。
+## How It Works
 
-🧠 AI 决策模块（Greedy Algorithm）
-实现贪心算法，评估每个空位的“得分”；
+1. A camera continuously captures the board image stream.
+2. The `GomokuVision` module processes frames and uses computer vision (Hough Transform, intensity detection) to locate and classify new pieces.
+3. When a valid new piece is confirmed over several frames, it triggers a callback (`onNewPieceDetected()`), alerting the system.
+4. The `GomokuCoordinator`, implementing the callback interface, checks whose turn it is. If it's the AI's turn, it queries the `GomokuAI` module, which uses Minimax to select the best move.
+5. The `ArmController` executes the move:
+   - Interpolates servo angles using bilinear interpolation
+   - Controls the arm via blocking I/O to ensure smooth, real-time motion
+6. The AI’s move is updated on the board, and the cycle repeats until a winner is found.
 
-根据当前棋局选择最优落子点；
+---
 
+## Requirements
 
-🤖 机械臂控制模块
-通过 I2C 通信控制 PCA9685 模块，实现对多路舵机的精确控制；
+- C++17 or later
+- OpenCV
 
-将棋盘坐标映射为机械臂坐标，实现自动物理落子；
+### Install OpenCV on Linux
 
-支持多自由度机械臂规划；
+```bash
+sudo apt update
+sudo apt install libopencv-dev
+```
 
-3.技术栈
-语言：C++
+---
 
-平台：Raspberry Pi 5、Linux
-图像识别：OpenCV
+## Hardware
 
-舵机控制：PCA9685 模块，I2C 通信
+- Raspberry Pi
+- Robotic arm with 3 servos
+- Vacuum pump and electromagnet for gripping
+- PCA9685 PWM driver module
+- Camera
 
-依赖库：
-opencv
-pigpio
-i2c-dev
+---
 
-4.安装与运行
-待补充
+## Build Instructions
 
-5.项目结构
-待补充
+```bash
+cmake .
+make
+```
 
-6.开源协议
-本项目采用 MIT 开源协议，允许商用、修改与分发，但需保留原始版权信息。
+---
 
-7联系方式
-罗天真 
+## Notes
+
+- The AI assumes the human plays black and the robot plays white.
+- Vision logic uses a combination of Hough Circles and grayscale intensity to detect black and white pieces. Make sure the lighting is sufficient and there are no shadows on the board.
+- Arm movement angles are calculated using bilinear interpolation from a 3x3 manually calibrated grid.
+
+---
+
+## Limitations & Future Work
+
+- The system is a prototype and not yet fully robust in terms of physical placement accuracy, and some core functionalities are still incomplete.
+- Vision system currently uses simple grayscale thresholding; color detection could be improved with better lighting adaptation or ML-based classification.
+- AI depth is fixed and does not adapt to difficulty level or performance constraints.
+- The robotic arm relies on manually calibrated angles, and real-time kinematics is not yet implemented.
+- No GUI or user interface for game state or AI settings.
+- The current system architecture lacks sufficient decoupling between modules, which affects maintainability and scalability.
+
+---
+
+> ⚠️ This is an early-stage prototype. Feedback and contributions are welcome!
