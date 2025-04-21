@@ -194,9 +194,8 @@ void interpolationTest(ArmController &armController)
         armController.setElbowAngle(elbow);
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
         armController.resetServos();
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
     std::cout << "Exiting interpolation test.\n";

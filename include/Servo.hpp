@@ -84,10 +84,10 @@ public:
     /**
      * @brief Move servo smoothly to target angle using linear interpolation.
      * @param targetAngle Target angle in degrees. (will be clamped to min/max).
-     * @param step Size of each angle increment in degrees (e.g., 2.0f means move in 2° steps).
+     * @param step Size of each angle increment in degrees (e.g., 10.0f means move in 10° steps).
      * @param delayMs Delay in milliseconds between each step (e.g., 10ms per step).
      */
-    void setAngleSmoothly(float targetAngle, float step = 2.0f, int delayMs = 10);
+    void setAngleSmoothly(float targetAngle, float step = 15.0f, int delayMs = 50);
 
     /**
      * @brief Get the current stored angle of the servo.
