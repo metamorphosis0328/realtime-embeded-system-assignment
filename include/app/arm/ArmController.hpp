@@ -65,7 +65,6 @@ public:
      */
     std::tuple<float, float, float> interpolateAngles(int row, int col);
 
-    void loadLookupTable();
     void placePieceAt(int row, int col);
 
     /**
