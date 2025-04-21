@@ -20,7 +20,7 @@ void GomokuVision::registerCallback(PieceEventCallback* cb) {
 
 void GomokuVision::run() {
     int frame_count = 0;
-    const int FRAME_SKIP = 2;  // 每隔2帧检测一次，减轻处理负担并稳定检测
+    const int FRAME_SKIP = 2;
 
     while (true) {
         Mat frame;
@@ -60,7 +60,7 @@ void GomokuVision::run() {
             }
         }
 
-        // 清除未继续检测到的棋子候选项
+
         for (auto it = piece_candidates.begin(); it != piece_candidates.end();) {
             if (current_detected.find(it->first) == current_detected.end()) {
                 it = piece_candidates.erase(it);
@@ -161,8 +161,14 @@ vector<tuple<int, int, string>> GomokuVision::detectPieces(Mat& warped_img) {
             string color = detectPieceColor(warped_img, x, y, r);
             int row = static_cast<int>(round(nearest.y / spacing));
             int col = static_cast<int>(round(nearest.x / spacing));
-            if (row >= 0 && row < grid_lines && col >= 0 && col < grid_lines && color != "none") {
-                pieces.emplace_back(row, col, color);
+
+            // Map camera coordinate to robot coordinate (reverse direction)
+            int mapped_row = grid_lines - 1 - row;
+            int mapped_col = grid_lines - 1 - col;
+
+            if (mapped_row >= 0 && mapped_row < grid_lines &&
+                mapped_col >= 0 && mapped_col < grid_lines && color != "none") {
+                pieces.emplace_back(mapped_row, mapped_col, color);
                 Scalar drawColor = (color == "black") ? Scalar(0, 0, 0) : Scalar(255, 255, 255);
                 circle(warped_img, Point(x, y), r, drawColor, 2);
                 putText(warped_img, color, Point(nearest.x + 5, nearest.y - 5), FONT_HERSHEY_SIMPLEX, 0.4, Scalar(0, 255, 255), 1);
@@ -179,8 +185,6 @@ std::string GomokuVision::detectPieceColor(const cv::Mat& bgr, int x, int y, int
     circle(mask, Point(x, y), int(r * 0.7), Scalar(255), -1);
     Scalar mean_val = mean(gray, mask);
     float intensity = mean_val[0];
-    // cout << "[GRAY] intensity = " << intensity << endl;
-
     if (intensity < 90) return "black";
     if (intensity > 110) return "white";
     return "white";
