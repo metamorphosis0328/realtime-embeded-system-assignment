@@ -148,15 +148,18 @@ void ArmController::placePieceAt(int row, int col)
 
     auto [base, shoulder, elbow] = interpolateAngles(row, col);
 
+    // Test code
+    // std::cout << "[TEST] Placing at board coordinate: (" << row << ", " << col << ")\n";
+    // std::cout << "[TEST] Interpolated angles: base=" << base
+    //           << ", shoulder=" << shoulder
+    //           << ", elbow=" << elbow << "\n";
+
     setBaseAngle(base);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
     setShoulderAngle(shoulder);
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
     setElbowAngle(elbow);
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-    resetServos();
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
 }
 
 /**
@@ -192,4 +195,23 @@ void ArmController::release()
     magnet.deactivate();
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     pump.turnOff();
+}
+
+/**
+ * @brief Grip new piece at specific location.
+ */
+void ArmController::gripNewPiece()
+{
+    baseServo.setAngleSmoothly(-90.0f);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    shoulderServo.setAngleSmoothly(30.0f);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    elbowServo.setAngleSmoothly(60.0f);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    grip();
+
+    resetServos();
 }

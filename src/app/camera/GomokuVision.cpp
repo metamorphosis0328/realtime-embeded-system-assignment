@@ -32,18 +32,22 @@ void GomokuVision::run() {
     int frame_count = 0;
     const int FRAME_SKIP = 2;
 
+    bool initialized = false;
+    int INIT_FRAMES = 10;
+    int init_frame_count = 0;
+
     while (true) {
-                Mat frame;
+        Mat frame;
         cap >> frame;
-if (frame.empty()) continue;
+        if (frame.empty()) continue;
 
         Mat warped = detectBoard(frame);
         if (warped.empty()) continue;
-        
+
         frame_count++;
         if (frame_count % FRAME_SKIP != 0) continue;
 
-                auto pieces = detectPieces(warped);
+        auto pieces = detectPieces(warped);
         std::set<std::pair<int, int>> current_detected;
 
         for (auto& [row, col, color] : pieces) {
@@ -61,16 +65,25 @@ if (frame.empty()) continue;
                 candidate.frames_confirmed = 1;
             }
 
+            // Only update board state without triggering callbacks during initialization phase
+            if (!initialized) {
+                if (candidate.frames_confirmed >= FRAME_THRESHOLD) {
+                    board_state[row][col] = (color == "black") ? 1 : 2;
+                }
+                continue;
+            }
+
+            // Confirmed new piece, trigger AI callback
             if (candidate.frames_confirmed >= FRAME_THRESHOLD && board_state[row][col] == 0) {
                 board_state[row][col] = (color == "black") ? 1 : 2;
-                cout << "Confirmed new piece: " << color << " at (" << row << ", " << col << ")" << endl;
+                std::cout << "Confirmed new piece: " << color << " at (" << row << ", " << col << ")" << std::endl;
                 for (auto& cb : callbacks) {
                     cb->onNewPieceDetected(row, col, color);
                 }
             }
         }
 
-
+        // Clean up old candidate pieces that are no longer detected
         for (auto it = piece_candidates.begin(); it != piece_candidates.end();) {
             if (current_detected.find(it->first) == current_detected.end()) {
                 it = piece_candidates.erase(it);
@@ -79,9 +92,20 @@ if (frame.empty()) continue;
             }
         }
 
+        // Initialization progress tracking
+        if (!initialized) {
+            init_frame_count++;
+            if (init_frame_count >= INIT_FRAMES) {
+                initialized = true;
+                std::cout << "[Vision] Initialization complete. Game logic starts now.\n";
+            } else {
+                std::cout << "[Vision] Initializing (" << init_frame_count << "/" << INIT_FRAMES << ")...\r" << std::flush;
+            }
+        }
+
         // Debugging code
-        // imshow("Warped Board", warped);
-        // if (waitKey(10) == 27) break;
+        imshow("Warped Board", warped);
+        if (waitKey(10) == 27) break;
     }
     cap.release();
     destroyAllWindows();

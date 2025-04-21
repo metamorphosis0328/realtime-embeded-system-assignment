@@ -79,6 +79,11 @@ public:
      */
     void release();
 
+    /**
+     * @brief Grip new piece at specific location.
+     */
+    void gripNewPiece();
+
 private:
     // Servo control components
     Servo &baseServo;
