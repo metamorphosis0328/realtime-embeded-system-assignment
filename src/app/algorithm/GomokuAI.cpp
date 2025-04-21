@@ -55,18 +55,40 @@ int GomokuAI::evaluatePoint(int row, int col, int player)
     return score;
 }
 
-std::pair<int, int> GomokuAI::getBestMove()
-{
+std::pair<int, int> GomokuAI::getBestMove() {
     int best_score = -1;
     std::pair<int, int> best_move = {-1, -1};
 
+    // 1. If I can win, do it
     for (int i = 0; i < size; ++i)
         for (int j = 0; j < size; ++j)
-            if (board[i][j] == 0)
-            {
-                int score = evaluatePoint(i, j, 2) + evaluatePoint(i, j, 1) / 2;
-                if (score > best_score)
-                {
+            if (board[i][j] == 0) {
+                board[i][j] = 2;
+                if (checkWin(2)) {
+                    board[i][j] = 0;
+                    return {i, j};
+                }
+                board[i][j] = 0;
+            }
+
+    // 2. If opponent can win, block it
+    for (int i = 0; i < size; ++i)
+        for (int j = 0; j < size; ++j)
+            if (board[i][j] == 0) {
+                board[i][j] = 1;
+                if (checkWin(1)) {
+                    board[i][j] = 0;
+                    return {i, j};
+                }
+                board[i][j] = 0;
+            }
+
+    // 3. Otherwise, score normally
+    for (int i = 0; i < size; ++i)
+        for (int j = 0; j < size; ++j)
+            if (board[i][j] == 0) {
+                int score = evaluatePoint(i, j, 2) + evaluatePoint(i, j, 1) * 2;
+                if (score > best_score) {
                     best_score = score;
                     best_move = {i, j};
                 }
