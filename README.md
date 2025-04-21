@@ -4,6 +4,17 @@ This project is a real-time embedded system developed as part of the **ENG5220 R
 
 ---
 
+## Acknowledgements
+
+- The PCA9685 driver in this project is **adapted from** [Adafruit's PCA9685 PWM Servo Driver Library](https://github.com/adafruit/Adafruit-PWM-Servo-Driver-Library), originally released under the BSD License. Significant modifications were made to fit the needs of this real-time embedded coursework project.
+
+- Significant modifications for use in the ENG5220 Gomoku AI Robot System (2025):
+   - Ported from Arduino to Raspberry Pi (Linux-based I2C interface using /dev/i2c-*)
+   - Replaced Arduino-specific APIs (Wire, delay, etc.) with standard Linux C++
+   - Redesigned as a C++ class with better abstraction and integration for servo control
+
+---
+
 ## Features
 
 - **AI Module**: Implements a Minimax-based algorithm to determine the best move based on real-time board updates.

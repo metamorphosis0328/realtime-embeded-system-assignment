@@ -1,3 +1,15 @@
+// Adapted from Adafruit's PCA9685 PWM Servo Driver Library
+// https://github.com/adafruit/Adafruit-PWM-Servo-Driver-Library
+//
+// Original code Copyright (c) 2012, Adafruit Industries
+// Licensed under the BSD License
+// See LICENSE-THIRD-PARTY.txt for full license text.
+//
+// Significant modifications for use in the ENG5220 Gomoku AI Robot System (2025):
+// - Ported from Arduino to Raspberry Pi (Linux-based I2C interface using /dev/i2c-*)
+// - Replaced Arduino-specific APIs (Wire, delay, etc.) with standard Linux C++
+// - Redesigned as a C++ class with better abstraction and integration for servo control
+
 #ifndef PCA9685DRIVER_HPP
 #define PCA9685DRIVER_HPP
 
