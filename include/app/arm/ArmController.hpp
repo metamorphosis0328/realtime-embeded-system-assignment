@@ -8,6 +8,10 @@
 #include <map>
 #include <tuple>
 #include <array>
+#include <queue>
+#include <mutex>
+#include <thread>
+#include <condition_variable>
 
 class ArmController
 {
@@ -84,6 +88,19 @@ public:
      */
     void gripNewPiece();
 
+    /**
+     * @brief Starts the background worker thread for executing arm movement tasks.
+     */
+    void startWorker();
+
+    /**
+     * @brief Enqueues a new move task to be executed by the arm.
+     *
+     * @param row Board row index
+     * @param col Board column index
+     */
+    void enqueueMove(int row, int col);
+
 private:
     // Servo control components
     Servo &baseServo;
@@ -94,6 +111,15 @@ private:
     // Pump and electromagnetic components
     Pump &pump;
     Electromagnet &magnet;
+
+    // Worker thread for asynchronously executing arm movement tasks
+    std::thread workerThread;
+    std::queue<std::pair<int, int>> taskQueue;
+    std::mutex queueMutex;
+    std::condition_variable cv;
+    bool running = true;
+
+    void workerLoop();
 };
 
 #endif

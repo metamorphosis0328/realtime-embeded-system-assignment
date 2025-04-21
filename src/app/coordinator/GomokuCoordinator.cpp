@@ -35,11 +35,7 @@ void GomokuCoordinator::onNewPieceDetected(int row, int col, const std::string &
         if (armController)
         {
             std::cout << "[ARM] Executing move...\n";
-            // armController->gripNewPiece();
-            armController->placePieceAt(ai_row, ai_col);
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-            // armController->release();
-            armController->resetServos();
+            armController->enqueueMove(ai_row, ai_col);
         }
 
         ai.updateBoard(ai_row, ai_col, ai_player);

@@ -213,3 +213,35 @@ void ArmController::gripNewPiece()
 
     grip();
 }
+
+void ArmController::startWorker()
+{
+    workerThread = std::thread(&ArmController::workerLoop, this);
+}
+
+void ArmController::enqueueMove(int row, int col)
+{
+    std::lock_guard<std::mutex> lock(queueMutex);
+    taskQueue.emplace(row, col);
+    cv.notify_one();
+}
+
+void ArmController::workerLoop()
+{
+    while (running)
+    {
+        std::unique_lock<std::mutex> lock(queueMutex);
+        cv.wait(lock, [&]
+                { return !taskQueue.empty(); });
+
+        auto [row, col] = taskQueue.front();
+        taskQueue.pop();
+        lock.unlock();
+
+        // armController->gripNewPiece();
+        placePieceAt(row, col);
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        // armController->release();
+        resetServos();
+    }
+}

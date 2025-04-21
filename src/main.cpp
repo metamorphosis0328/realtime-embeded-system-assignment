@@ -45,6 +45,7 @@ int main()
         // Initialize arm module
         ArmController& arm = createArmController();
         arm.initializeServos();
+        arm.startWorker();
 
         // Initialize coordinator module
         GomokuCoordinator coordinator(ai, WHITE_PIECE, &arm);
