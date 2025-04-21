@@ -139,7 +139,7 @@ vector<tuple<int, int, string>> GomokuVision::detectPieces(Mat& warped_img) {
     }
 
     vector<Vec3f> hough_circles;
-    HoughCircles(blurred, hough_circles, HOUGH_GRADIENT, 1.2, spacing * 0.4, 80, 20, 20, 40);
+    HoughCircles(blurred, hough_circles, HOUGH_GRADIENT, 1.2, spacing * 0.4, 100, 20, 18, 24);
     vector<tuple<int, int, string>> pieces;
 
     for (auto& hough_circle : hough_circles) {
@@ -176,12 +176,12 @@ std::string GomokuVision::detectPieceColor(const cv::Mat& bgr, int x, int y, int
     Mat gray;
     cvtColor(bgr, gray, COLOR_BGR2GRAY);
     Mat mask = Mat::zeros(gray.size(), CV_8UC1);
-    circle(mask, Point(x, y), int(r * 0.5), Scalar(255), -1);
+    circle(mask, Point(x, y), int(r * 0.7), Scalar(255), -1);
     Scalar mean_val = mean(gray, mask);
     float intensity = mean_val[0];
     // cout << "[GRAY] intensity = " << intensity << endl;
 
     if (intensity < 90) return "black";
-    if (intensity > 180) return "white";
-    return "none";
+    if (intensity > 110) return "white";
+    return "white";
 }
