@@ -2,7 +2,12 @@
 #define ARMCONTROLLER_HPP
 
 #include "Servo.hpp"
+#include "Pump.hpp"
+#include "Electromagnet.hpp"
 #include <utility>
+#include <map>
+#include <tuple>
+#include <array>
 
 class ArmController
 {
@@ -50,18 +55,40 @@ public:
      */
     void resetServos();
 
-    /* @brief Compute the servo angles for a given board position using bilinear interpolation.
+    /**
+     * @brief Interpolates servo angles based on row/col position using bilinear interpolation.
+     * Calculate the 3 servo angles via bilinear interpolation to manually cordinated grid.
      *
      * @param row Row index on the board (0–8). 0 is the top row, 8 is the bottom.
      * @param col Col index on the board (0–8). 0 is the leftmost column, 8 is the rightmost.
-     * @return std::pair<float, float> { baseAngle, shoulderAngle }
+     * @return std::tuple<float, float, float> { baseAngle, shoulderAngle, elbowAngle }
      */
-    std::pair<float, float> interpolateAngles(int row, int col);
+    std::tuple<float, float, float> interpolateAngles(int row, int col);
+
+    void loadLookupTable();
+    void placePieceAt(int row, int col);
+
+    /**
+     * @brief Turn on the pump and activate electromagnet to grip an object.
+     */
+    void ArmController::grip();
+
+    /**
+     * @brief Deactivate the electromagnet and turn off the pump to release an object.
+     */
+    void ArmController::release();
 
 private:
+    // Servo control components
     Servo &baseServo;
     Servo &shoulderServo;
     Servo &elbowServo;
+    std::map<std::pair<int, int>, std::tuple<float, float, float>> angleTable;
+    static const std::array<std::array<std::tuple<float, float, float>, 3>, 3> cordinatedGrid;
+
+    // Pump and electromagnetic components
+    Pump &pump;
+    Electromagnet &magnet;
 };
 
 #endif

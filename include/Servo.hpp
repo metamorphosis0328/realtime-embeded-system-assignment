@@ -81,9 +81,23 @@ public:
      */
     void setAngle(float angle);
 
+    /**
+     * @brief Move servo smoothly to target angle using linear interpolation.
+     * @param targetAngle Target angle in degrees. (will be clamped to min/max).
+     * @param step Size of each angle increment in degrees (e.g., 10.0f means move in 10° steps).
+     * @param delayMs Delay in milliseconds between each step (e.g., 10ms per step).
+     */
+    void setAngleSmoothly(float targetAngle, float step = 10.0f, int delayMs = 50);
+
+    /**
+     * @brief Get the current stored angle of the servo.
+     */
+    float getAngle() const { return currentAngle; }
+
 private:
     PCA9685Driver *pca;
     ServoConfig config;
+    float currentAngle;
 };
 
 #endif
