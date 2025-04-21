@@ -3,6 +3,8 @@
 
 #include "PCA9685Driver.hpp"
 
+#define MAGNET_CHANNEL 14
+
 /**
  * @brief Electromagnet control class using PCA9685.
  *

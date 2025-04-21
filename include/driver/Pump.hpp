@@ -3,6 +3,8 @@
 
 #include "PCA9685Driver.hpp"
 
+#define PUMP_CHANNEL 15
+
 /**
  * @brief Pump control class using PCA9685.
  *
