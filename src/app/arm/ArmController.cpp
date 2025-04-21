@@ -11,7 +11,7 @@
  * @param elbow Servo for the elbow joint
  */
 ArmController::ArmController(Servo &base, Servo &shoulder, Servo &elbow)
-    : baseServo(base), shoulderServo(shoulder), elbowServo(elbow) {}
+    : baseServo(base), shoulderServo(shoulder), elbowServo(elbow), pump(pump), magnet(magnet) {}
 
 /**
  * @brief Initialize the servos to their starting positions (center).
@@ -74,9 +74,15 @@ void ArmController::setElbowAngle(float angle)
  */
 const std::array<std::array<std::tuple<float, float, float>, 3>, 3> ArmController::cordinatedGrid =
     {{
-        { { {-15.0f, 75.0f, 20.0f}, {0.0f, 70.0f, 25.0f}, {15.0f, 75.0f, 20.0f} }, }, // Top
-        { { {-15.5f, 65.0f, 30.0f}, {0.0f, 62.5f, 32.5f}, {15.5f, 65.0f, 30.0f} }, }, // Middle
-        { { {-25.0f, 30.0f, 65.0f}, {0.0f, 25.0f, 70.0f}, {30.0f, 30.0f, 65.0f} }, }, // Bottom 
+        {
+            {{-15.0f, 75.0f, 20.0f}, {0.0f, 70.0f, 25.0f}, {15.0f, 75.0f, 20.0f}},
+        }, // Top
+        {
+            {{-15.5f, 65.0f, 30.0f}, {0.0f, 62.5f, 32.5f}, {15.5f, 65.0f, 30.0f}},
+        }, // Middle
+        {
+            {{-25.0f, 30.0f, 65.0f}, {0.0f, 25.0f, 70.0f}, {30.0f, 30.0f, 65.0f}},
+        }, // Bottom
     }};
 
 /**
@@ -93,26 +99,29 @@ std::tuple<float, float, float> ArmController::interpolateAngles(int row, int co
     float t_row = static_cast<float>(row) / (GRID_SIZE - 1);
     float t_col = static_cast<float>(col) / (GRID_SIZE - 1);
 
-    auto interpolate = [](const std::tuple<float, float, float>& a,
-                          const std::tuple<float, float, float>& b,
-                          float t) -> std::tuple<float, float, float> {
+    auto interpolate = [](const std::tuple<float, float, float> &a,
+                          const std::tuple<float, float, float> &b,
+                          float t) -> std::tuple<float, float, float>
+    {
         float a1, a2, a3, b1, b2, b3;
         std::tie(a1, a2, a3) = a;
         std::tie(b1, b2, b3) = b;
         return {
             a1 + (b1 - a1) * t,
             a2 + (b2 - a2) * t,
-            a3 + (b3 - a3) * t
-        };
+            a3 + (b3 - a3) * t};
     };
 
     std::tuple<float, float, float> top, middle, bottom, final;
 
-    if (t_row <= 0.5f) {
+    if (t_row <= 0.5f)
+    {
         top = interpolate(cordinatedGrid[0][0], cordinatedGrid[0][1], t_col * 2);
         middle = interpolate(cordinatedGrid[1][0], cordinatedGrid[1][1], t_col * 2);
         final = interpolate(top, middle, t_row * 2);
-    } else {
+    }
+    else
+    {
         middle = interpolate(cordinatedGrid[1][0], cordinatedGrid[1][1], t_col * 2);
         bottom = interpolate(cordinatedGrid[2][0], cordinatedGrid[2][1], t_col * 2);
         final = interpolate(middle, bottom, (t_row - 0.5f) * 2);
@@ -249,4 +258,24 @@ void ArmController::resetServos()
 
     baseServo.setAngleSmoothly(0.0f);
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
+}
+
+/**
+ * @brief Turn on the pump and activate electromagnet to grip an object.
+ */
+void ArmController::grip()
+{
+    pump.turnOn();
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    magnet.activate();
+}
+
+/**
+ * @brief Deactivate the electromagnet and turn off the pump to release an object.
+ */
+void ArmController::release()
+{
+    magnet.deactivate();
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    pump.turnOff();
 }
