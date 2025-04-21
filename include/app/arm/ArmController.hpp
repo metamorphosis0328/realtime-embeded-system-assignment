@@ -15,11 +15,13 @@ public:
     /**
      * @brief Construct a new ArmController object.
      *
-     * @param base Servo for the base joint
-     * @param shoulder Servo for the shoulder joint
-     * @param elbow Servo for the elbow joint
+     * @param base Servo for the base joint (channel 1)
+     * @param shoulder Servo for the shoulder joint (channel 2)
+     * @param elbow Servo for the elbow joint (channel 0)
+     * @param pump Pump (channel 15)
+     * @param magnet Electromagnet (channel 14)
      */
-    ArmController(Servo &base, Servo &shoulder, Servo &elbow);
+    ArmController(Servo &base, Servo &shoulder, Servo &elbow, Pump &pump, Electromagnet &magnet);
 
     /**
      * @brief Initialize the servos to their starting positions (center).

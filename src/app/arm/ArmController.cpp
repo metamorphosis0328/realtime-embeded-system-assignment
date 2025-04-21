@@ -11,7 +11,7 @@
  * @param shoulder Servo for the shoulder joint
  * @param elbow Servo for the elbow joint
  */
-ArmController::ArmController(Servo &base, Servo &shoulder, Servo &elbow)
+ArmController::ArmController(Servo &base, Servo &shoulder, Servo &elbow, Pump &pump, Electromagnet &magnet)
     : baseServo(base), shoulderServo(shoulder), elbowServo(elbow), pump(pump), magnet(magnet) {}
 
 /**

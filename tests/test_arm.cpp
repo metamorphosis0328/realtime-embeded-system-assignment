@@ -242,8 +242,11 @@ int main()
     Servo shoulderServo(&pwm, SHOULDER_SERVO);
     Servo elbowServo(&pwm, ELBOW_SERVO);
 
+    Pump pump(&pwm, 15);
+    Electromagnet magnet(&pwm, 14);
+
     // Create the ArmController with the servos
-    ArmController armController(baseServo, shoulderServo, elbowServo);
+    ArmController armController(baseServo, shoulderServo, elbowServo, pump, magnet);
 
     int mode;
 
@@ -252,7 +255,6 @@ int main()
               << "  [1] Single servo control mode\n"
               << "  [2] Automatic test mode\n"
               << "  [3] Interpolation test mode\n"
-            //   << "  [4] Lookup table test mode\n"
               << "Enter: ";
     std::cin >> mode;
 
@@ -272,11 +274,6 @@ int main()
     {
         interpolationTest(armController);
     }
-    // else if (mode == 4)
-    // {
-    //     armController.loadLookupTable();
-    //     lookupTest(armController);
-    // }
     else
     {
         std::cout << "Invalid mode selection." << std::endl;
