@@ -71,12 +71,12 @@ public:
     /**
      * @brief Turn on the pump and activate electromagnet to grip an object.
      */
-    void ArmController::grip();
+    void grip();
 
     /**
      * @brief Deactivate the electromagnet and turn off the pump to release an object.
      */
-    void ArmController::release();
+    void release();
 
 private:
     // Servo control components
