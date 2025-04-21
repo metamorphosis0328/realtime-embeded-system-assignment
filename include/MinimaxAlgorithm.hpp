@@ -21,6 +21,8 @@ public:
     // Get statistics
     std::map<std::string, int> get_statistics() const;
 
+    bool check_win(const std::vector<std::pair<int, int>>& pieces);
+
 private:
     // Board dimensions
     int COLUMN;
@@ -51,7 +53,6 @@ private:
                  const std::vector<std::pair<int, int>>& enemy_list, 
                  const std::vector<std::pair<int, int>>& my_list, 
                  std::vector<std::tuple<int, std::vector<std::pair<int, int>>, std::pair<int, int>>>& score_all_arr);
-    bool check_win(const std::vector<std::pair<int, int>>& pieces);
 };
 
 #endif // MINIMAX_ALGORITHM_H 

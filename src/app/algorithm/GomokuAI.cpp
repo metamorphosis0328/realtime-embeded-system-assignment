@@ -1,6 +1,8 @@
 #include "GomokuAI.hpp"
 
-GomokuAI::GomokuAI(int size) : size(size), board(size, std::vector<int>(size, 0)) {}
+GomokuAI::GomokuAI(int size)
+    : size(size), board(size, std::vector<int>(size, 0)),
+      minimax({size, size}, 2 /* search depth */, 1.0 /* attack-defense ratio */) {}
 
 void GomokuAI::updateBoard(int row, int col, int player)
 {
@@ -9,92 +11,12 @@ void GomokuAI::updateBoard(int row, int col, int player)
 
 bool GomokuAI::checkWin(int player)
 {
-    const int dx[] = {1, 0, 1, 1};
-    const int dy[] = {0, 1, -1, 1};
-
-    for (int i = 0; i < size; i++)
-        for (int j = 0; j < size; j++)
-            for (int d = 0; d < 4; d++)
-            {
-                int cnt = 0;
-                for (int k = 0; k < 5; k++)
-                {
-                    int x = i + k * dx[d];
-                    int y = j + k * dy[d];
-                    if (x >= 0 && x < size && y >= 0 && y < size && board[x][y] == player)
-                        cnt++;
-                    else
-                        break;
-                }
-                if (cnt == 5)
-                    return true;
-            }
-    return false;
-}
-
-int GomokuAI::evaluatePoint(int row, int col, int player)
-{
-    int score = 0;
-    const int dx[] = {1, 0, 1, 1};
-    const int dy[] = {0, 1, -1, 1};
-
-    for (int d = 0; d < 4; ++d)
-    {
-        int count = 1;
-        for (int step = 1; step <= 4; step++)
-        {
-            int x = row + dx[d] * step;
-            int y = col + dy[d] * step;
-            if (x >= 0 && x < size && y >= 0 && y < size && board[x][y] == player)
-                count++;
-            else
-                break;
-        }
-        score += count * count;
-    }
-    return score;
-}
-
-std::pair<int, int> GomokuAI::getBestMove() {
-    int best_score = -1;
-    std::pair<int, int> best_move = {-1, -1};
-
-    // 1. If I can win, do it
+    std::vector<std::pair<int, int>> pieces;
     for (int i = 0; i < size; ++i)
         for (int j = 0; j < size; ++j)
-            if (board[i][j] == 0) {
-                board[i][j] = 2;
-                if (checkWin(2)) {
-                    board[i][j] = 0;
-                    return {i, j};
-                }
-                board[i][j] = 0;
-            }
-
-    // 2. If opponent can win, block it
-    for (int i = 0; i < size; ++i)
-        for (int j = 0; j < size; ++j)
-            if (board[i][j] == 0) {
-                board[i][j] = 1;
-                if (checkWin(1)) {
-                    board[i][j] = 0;
-                    return {i, j};
-                }
-                board[i][j] = 0;
-            }
-
-    // 3. Otherwise, score normally
-    for (int i = 0; i < size; ++i)
-        for (int j = 0; j < size; ++j)
-            if (board[i][j] == 0) {
-                int score = evaluatePoint(i, j, 2) + evaluatePoint(i, j, 1) * 2;
-                if (score > best_score) {
-                    best_score = score;
-                    best_move = {i, j};
-                }
-            }
-
-    return best_move;
+            if (board[i][j] == player)
+                pieces.emplace_back(i, j);
+    return minimax.check_win(pieces);
 }
 
 int GomokuAI::countPieces(int player) const
@@ -105,4 +27,21 @@ int GomokuAI::countPieces(int player) const
             if (cell == player)
                 count++;
     return count;
+}
+
+std::pair<int, int> GomokuAI::getBestMove()
+{
+    std::vector<std::pair<int, int>> ai_pieces;
+    std::vector<std::pair<int, int>> human_pieces;
+
+    for (int i = 0; i < size; ++i)
+        for (int j = 0; j < size; ++j)
+        {
+            if (board[i][j] == 2)
+                ai_pieces.emplace_back(i, j);
+            else if (board[i][j] == 1)
+                human_pieces.emplace_back(i, j);
+        }
+
+    return minimax.get_next_move(ai_pieces, human_pieces);
 }

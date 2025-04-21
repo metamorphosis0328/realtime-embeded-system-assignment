@@ -1,4 +1,4 @@
-#include "minimax_algorithm.h"
+#include "MinimaxAlgorithm.hpp"
 #include <iostream>
 #include <algorithm>
 

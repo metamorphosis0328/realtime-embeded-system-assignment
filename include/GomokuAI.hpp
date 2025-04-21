@@ -1,8 +1,12 @@
-#pragma once
+#ifndef GOMOKUAI_HPP
+#define GOMOKUAI_HPP
+
 #include <vector>
 #include <utility>
+#include "MinimaxAlgorithm.hpp"
 
-class GomokuAI {
+class GomokuAI
+{
 public:
     GomokuAI(int size);
     void updateBoard(int row, int col, int player);
@@ -13,5 +17,6 @@ public:
 private:
     int size;
     std::vector<std::vector<int>> board;
-    int evaluatePoint(int row, int col, int player);
+    MinimaxAlgorithm minimax;
 };
+#endif
