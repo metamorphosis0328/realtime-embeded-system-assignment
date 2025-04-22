@@ -4,14 +4,12 @@
 #include "Servo.hpp"
 #include "Pump.hpp"
 #include "Electromagnet.hpp"
-#include <utility>
-#include <map>
-#include <tuple>
 #include <array>
 #include <queue>
 #include <mutex>
 #include <thread>
 #include <condition_variable>
+#include <chrono>
 
 class ArmController
 {
@@ -26,6 +24,35 @@ public:
      * @param magnet Electromagnet (channel 14)
      */
     ArmController(Servo &base, Servo &shoulder, Servo &elbow, Pump &pump, Electromagnet &magnet);
+
+    // Non-blocking action stage
+    enum class Stage
+    {
+        // Idle
+        Idle,
+        // Place
+        PlaceStartBase,
+        PlaceMoveShoulder,
+        PlaceMoveElbow,
+        // Grip
+        GripStartBase,
+        GripMoveShoulder,
+        GripMoveElbow,
+        // Reset (reversed order)
+        ResetStartElbow,
+        ResetMoveShoulder,
+        ResetMoveBase,
+        // Compelete
+        CompleteWait,
+        Completed
+    };
+
+    /**
+     * @brief Get the currentStage.
+     * 
+     * @return currentStage 
+     */
+    Stage getStage() const { return currentStage; }
 
     /**
      * @brief Initialize the servos to their starting positions (center).
@@ -77,12 +104,17 @@ public:
      */
     void enqueueMove(int row, int col);
 
+    /**
+     * @brief Called regularly to advance non-blocking arm action
+     */
+    void update();
+
 private:
     // Servo control components
     Servo &baseServo;
     Servo &shoulderServo;
     Servo &elbowServo;
-    static const std::array<std::array<std::tuple<float, float, float>, 3>, 3> cordinatedGrid;
+    static const std::array<std::array<std::tuple<float, float, float>, 3>, 3> coordinatedGrid;
 
     // Pump and electromagnetic components
     Pump &pump;
@@ -96,6 +128,13 @@ private:
     bool running = true;
 
     void workerLoop();
+
+    bool isInit = false;
+    Stage currentStage = Stage::Idle;
+    std::chrono::steady_clock::time_point stageStartTime;
+    float targetBase = 0.0f;
+    float targetShoulder = 0.0f;
+    float targetElbow = 0.0f;
 };
 
 #endif
