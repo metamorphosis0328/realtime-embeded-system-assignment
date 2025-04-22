@@ -188,7 +188,7 @@ void ArmController::update()
 
     // Reset (reversed order)
     case Stage::ResetStartElbow:
-        if (duration_cast<milliseconds>(now - stageStartTime).count() >= 500)
+        if (duration_cast<milliseconds>(now - stageStartTime).count() >= 800)
         {
             elbowServo.setAngleSmoothly(0.0f);
             stageStartTime = now;
