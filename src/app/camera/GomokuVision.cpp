@@ -203,7 +203,7 @@ vector<tuple<int, int, string>> GomokuVision::detectPieces(Mat& warped_img) {
 
             if (mapped_row >= 0 && mapped_row < grid_lines &&
                 mapped_col >= 0 && mapped_col < grid_lines && color != "none") {
-                pieces.emplace_back(mapped_row, mapped_col, color);
+                pieces.emplace_back(mapped_col, mapped_row, color); // Swap row and col to match arm's coordinate system (camera view is opposite to the arm)
                 Scalar drawColor = (color == "black") ? Scalar(0, 0, 0) : Scalar(255, 255, 255);
                 circle(warped_img, Point(x, y), r, drawColor, 2);
                 putText(warped_img, color, Point(nearest.x + 5, nearest.y - 5), FONT_HERSHEY_SIMPLEX, 0.4, Scalar(0, 255, 255), 1);
