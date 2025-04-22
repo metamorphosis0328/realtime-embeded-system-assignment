@@ -136,7 +136,7 @@ void ArmController::update()
     case Stage::GripStartBase:
         if (duration_cast<milliseconds>(now - stageStartTime).count() >= 500)
         {
-            baseServo.setAngleSmoothly(-90.0f);
+            baseServo.setAngle(-90.0f);
             stageStartTime = now;
             currentStage = Stage::GripMoveShoulder;
         }
@@ -144,7 +144,7 @@ void ArmController::update()
     case Stage::GripMoveShoulder:
         if (duration_cast<milliseconds>(now - stageStartTime).count() >= 500)
         {
-            shoulderServo.setAngleSmoothly(30.0f);
+            shoulderServo.setAngle(30.0f);
             stageStartTime = now;
             currentStage = Stage::GripMoveElbow;
         }
@@ -152,7 +152,7 @@ void ArmController::update()
     case Stage::GripMoveElbow:
         if (duration_cast<milliseconds>(now - stageStartTime).count() >= 500)
         {
-            elbowServo.setAngleSmoothly(60.0f);
+            elbowServo.setAngle(60.0f);
             grip(); // Do grip()
             stageStartTime = now;
             currentStage = Stage::ResetStartElbow;
@@ -163,7 +163,7 @@ void ArmController::update()
     case Stage::PlaceStartBase:
         if (duration_cast<milliseconds>(now - stageStartTime).count() >= 500)
         {
-            baseServo.setAngleSmoothly(targetBase);
+            baseServo.setAngle(targetBase);
             stageStartTime = now;
             currentStage = Stage::PlaceMoveShoulder;
         }
@@ -171,7 +171,7 @@ void ArmController::update()
     case Stage::PlaceMoveShoulder:
         if (duration_cast<milliseconds>(now - stageStartTime).count() >= 500)
         {
-            shoulderServo.setAngleSmoothly(targetShoulder);
+            shoulderServo.setAngle(targetShoulder);
             stageStartTime = now;
             currentStage = Stage::PlaceMoveElbow;
         }
@@ -179,7 +179,7 @@ void ArmController::update()
     case Stage::PlaceMoveElbow:
         if (duration_cast<milliseconds>(now - stageStartTime).count() >= 500)
         {
-            elbowServo.setAngleSmoothly(targetElbow);
+            elbowServo.setAngle(targetElbow);
             release(); // Do release()
             stageStartTime = now;
             currentStage = Stage::ResetStartElbow;
@@ -190,7 +190,7 @@ void ArmController::update()
     case Stage::ResetStartElbow:
         if (duration_cast<milliseconds>(now - stageStartTime).count() >= 800)
         {
-            elbowServo.setAngleSmoothly(0.0f);
+            elbowServo.setAngle(0.0f);
             stageStartTime = now;
             currentStage = Stage::ResetMoveShoulder;
         }
@@ -198,7 +198,7 @@ void ArmController::update()
     case Stage::ResetMoveShoulder:
         if (duration_cast<milliseconds>(now - stageStartTime).count() >= 500)
         {
-            shoulderServo.setAngleSmoothly(0.0f);
+            shoulderServo.setAngle(0.0f);
             stageStartTime = now;
             currentStage = Stage::ResetMoveBase;
         }
@@ -206,7 +206,7 @@ void ArmController::update()
     case Stage::ResetMoveBase:
         if (duration_cast<milliseconds>(now - stageStartTime).count() >= 500)
         {
-            baseServo.setAngleSmoothly(0.0f);
+            baseServo.setAngle(0.0f);
             stageStartTime = now;
             currentStage = Stage::CompleteWait;
         }
