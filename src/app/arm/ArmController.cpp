@@ -30,39 +30,6 @@ void ArmController::initializeServos()
 }
 
 /**
- * @brief Set the angle of the base servo.
- *
- * @param angle Desired angle in degrees.
- * (The angle will be clamped within the servo's physical limits. See Servo.hpp for details)
- */
-void ArmController::setBaseAngle(float angle)
-{
-    baseServo.setAngleSmoothly(angle);
-}
-
-/**
- * @brief Set the angle of the shoulder servo.
- *
- * @param angle Desired angle in degrees.
- * (The angle will be clamped within the servo's physical limits. See Servo.hpp for details)
- */
-void ArmController::setShoulderAngle(float angle)
-{
-    shoulderServo.setAngleSmoothly(angle);
-}
-
-/**
- * @brief Set the angle of the elbow servo.
- *
- * @param angle Desired angle in degrees.
- * (The angle will be clamped within the servo's physical limits. See Servo.hpp for details)
- */
-void ArmController::setElbowAngle(float angle)
-{
-    elbowServo.setAngleSmoothly(angle);
-}
-
-/**
  * @brief Manually cordinated grid for 9 points
  * Each tuple records a set of servo angles:
  * std::tuple<float, float, float> { baseAngle, shoulderAngle, elbowAngle }

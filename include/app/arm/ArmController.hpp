@@ -33,30 +33,6 @@ public:
     void initializeServos();
 
     /**
-     * @brief Set the angle of the base servo (rotation around vertical axis).
-     *
-     * @param angle Desired angle in degrees. Positive: arm moves clockwise; negative: arm moves counter-clockwise.
-     * (The angle will be clamped within the servo's physical limits. See Servo.hpp for details)
-     */
-    void setBaseAngle(float angle);
-
-    /**
-     * @brief Set the angle of the shoulder servo (rotation around shoulder joint).
-     *
-     * @param angle Desired angle in degrees. Positive: arm moves forward; negative: arm moves backward.
-     * (The angle will be clamped within the servo's physical limits. See Servo.hpp for details)
-     */
-    void setShoulderAngle(float angle);
-
-    /**
-     * @brief Set the angle of the elbow servo (rotation around elbow joint).
-     *
-     * @param angle Desired angle in degrees. Positive: arm moves up; negative: arm moves down.
-     * (The angle will be clamped within the servo's physical limits. See Servo.hpp for details)
-     */
-    void setElbowAngle(float angle);
-
-    /**
      * @brief Reset all servos to their initial positions.
      */
     void resetServos();
