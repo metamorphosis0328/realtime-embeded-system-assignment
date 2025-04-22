@@ -222,7 +222,7 @@ void ArmController::startWorker()
 void ArmController::enqueueMove(int row, int col)
 {
     std::lock_guard<std::mutex> lock(queueMutex);
-    taskQueue.emplace(row, col);
+    taskQueue.emplace(col, row); // Swap row and col to match arm's coordinate system (camera view is opposite to the arm)
     cv.notify_one();
 }
 
