@@ -24,7 +24,7 @@ void ArmController::initializeServos()
 }
 
 /**
- * @brief Manually cordinated grid for 9 points
+ * @brief Manually coordinated grid for 9 points
  * Each tuple records a set of servo angles:
  * std::tuple<float, float, float> { baseAngle, shoulderAngle, elbowAngle }
  * The grid is as follows:
@@ -34,7 +34,7 @@ void ArmController::initializeServos()
  *  ...
  * (8, 0) ... (8, 4) ... (8, 8)
  */
-const std::array<std::array<std::tuple<float, float, float>, 3>, 3> ArmController::cordinatedGrid =
+const std::array<std::array<std::tuple<float, float, float>, 3>, 3> ArmController::coordinatedGrid =
     {{
     {
         {{-15.0f, 75.0f, 20.0f}, {0.0f, 70.0f, 25.0f}, {15.0f, 75.0f, 20.0f}}, // Top
@@ -49,7 +49,7 @@ const std::array<std::array<std::tuple<float, float, float>, 3>, 3> ArmControlle
 
 /**
  * @brief Interpolates servo angles based on row/col position using bilinear interpolation.
- * Calculate the 3 servo angles via bilinear interpolation to manually cordinated grid.
+ * Calculate the 3 servo angles via bilinear interpolation to manually coordinated grid.
  *
  * @param row Row index [0, 8]
  * @param col Column index [0, 8]
