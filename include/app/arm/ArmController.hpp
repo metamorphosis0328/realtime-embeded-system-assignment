@@ -38,6 +38,7 @@ public:
         GripStartBase,
         GripMoveShoulder,
         GripMoveElbow,
+        GripReady,
         // Reset (reversed order)
         ResetStartElbow,
         ResetMoveShoulder,
@@ -55,7 +56,7 @@ public:
     Stage getStage() const { return currentStage; }
 
     /**
-     * @brief Initialize the servos to their starting positions (center).
+     * @brief Initialize the servos to their starting positions.
      */
     void initializeServos();
 
@@ -66,15 +67,13 @@ public:
 
     /**
      * @brief Interpolates servo angles based on row/col position using bilinear interpolation.
-     * Calculate the 3 servo angles via bilinear interpolation to manually cordinated grid.
+     * Calculate the 3 servo angles via bilinear interpolation to manually coordinated grid.
      *
      * @param row Row index on the board (0–8). 0 is the top row, 8 is the bottom.
      * @param col Col index on the board (0–8). 0 is the leftmost column, 8 is the rightmost.
      * @return std::tuple<float, float, float> { baseAngle, shoulderAngle, elbowAngle }
      */
     std::tuple<float, float, float> interpolateAngles(int row, int col);
-
-    void placePieceAt(int row, int col);
 
     /**
      * @brief Turn on the pump and activate electromagnet to grip an object.
