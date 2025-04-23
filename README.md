@@ -171,8 +171,8 @@ make
 
 - **Douyin (TikTok China version):** [https://v.douyin.com/ni1dFG2RaWw/](https://v.douyin.com/ni1dFG2RaWw/)
 
-(The suction mechanism is not functional for now, so white pieces are placed manually. However, the robotic arm correctly responds to AI moves and points to the intended placement location.)
-- ![demo](https://github.com/user-attachments/assets/3c09957a-0d09-426d-88bf-5494eae97663)
+(The **gripping functionality** is not functional for now, so white pieces are placed manually. However, the robotic arm correctly responds to AI moves and points to the intended placement location.)
+ ![demo](https://github.com/user-attachments/assets/3c09957a-0d09-426d-88bf-5494eae97663)
 
 ---
 
