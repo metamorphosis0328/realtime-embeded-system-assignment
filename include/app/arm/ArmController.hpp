@@ -30,15 +30,17 @@ public:
     {
         // Idle
         Idle,
-        // Place
-        PlaceStartBase,
-        PlaceMoveShoulder,
-        PlaceMoveElbow,
         // Grip
         GripStartBase,
         GripMoveShoulder,
         GripMoveElbow,
+        GripDoGrip,
         GripReady,
+        // Place
+        PlaceStartBase,
+        PlaceMoveShoulder,
+        PlaceMoveElbow,
+        PlaceDoRelease,
         // Reset (reversed order)
         ResetStartElbow,
         ResetMoveShoulder,

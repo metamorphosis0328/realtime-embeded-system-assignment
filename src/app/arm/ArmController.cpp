@@ -129,13 +129,21 @@ void ArmController::update()
         if (duration_cast<milliseconds>(now - stageStartTime).count() >= 500)
         {
             elbowServo.setAngle(60.0f);
-            // grip(); // Do grip()
             stageStartTime = now;
             currentStage = Stage::GripReady;
+    //         currentStage = Stage::GripDoGrip;
         }
         break;
+    // case Stage::GripDoGrip:
+    //     if (duration_cast<milliseconds>(now - stageStartTime).count() >= 500)
+    //     {
+    //         grip(); // Do grip()
+    //         stageStartTime = now;
+    //         currentStage = Stage::GripReady;
+    //     }
+    //     break;
     case Stage::GripReady:
-        if (duration_cast<milliseconds>(now - stageStartTime).count() >= 500)
+        if (duration_cast<milliseconds>(now - stageStartTime).count() >= 800)
         {
             elbowServo.setAngle(0.0f); // Draw back to avoid collision
             stageStartTime = now;
@@ -164,15 +172,23 @@ void ArmController::update()
         if (duration_cast<milliseconds>(now - stageStartTime).count() >= 500)
         {
             elbowServo.setAngle(targetElbow);
-            // release(); // Do release()
             stageStartTime = now;
             currentStage = Stage::ResetStartElbow;
+            // currentStage = Stage::PlaceDoRelease;
         }
         break;
+    // case Stage::PlaceDoRelease:
+    //     if (duration_cast<milliseconds>(now - stageStartTime).count() >= 500)
+    //     {
+    //         release(); // Do release()
+    //         stageStartTime = now;
+    //         currentStage = Stage::ResetStartElbow;
+    //     }
+    //     break;
 
     // Reset (reversed order)
     case Stage::ResetStartElbow:
-        if (duration_cast<milliseconds>(now - stageStartTime).count() >= 500)
+        if (duration_cast<milliseconds>(now - stageStartTime).count() >= 800)
         {
             elbowServo.setAngle(0.0f);
             stageStartTime = now;
@@ -180,7 +196,7 @@ void ArmController::update()
         }
         break;
     case Stage::ResetMoveShoulder:
-        if (duration_cast<milliseconds>(now - stageStartTime).count() >= 500)
+        if (duration_cast<milliseconds>(now - stageStartTime).count() >= 800)
         {
             shoulderServo.setAngle(0.0f);
             stageStartTime = now;
