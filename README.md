@@ -112,6 +112,32 @@ You should see a device listed at address 0x40 (default for PCA9685).
 
 ---
 
+## Wiring Guide
+
+### 1. PCA9685 - Raspberry Pi (I2C)
+
+| PCA9685 Pin | Connects To (Raspberry Pi GPIO) | Description   |
+|-------------|-------------------------------|-----------------|
+| VCC         | 5V (Pin 3)                  | Power for logic |
+| GND         | GND (Pin 6)                   | Ground          |
+| SDA         | GPIO2 / SDA (Pin 4)           | I2C data        |
+| SCL         | GPIO3 / SCL (Pin 5)           | I2C clock       |
+| V+          | 5V (External 5V)              | Power for servos (separate from logic) |
+
+### 2. PCA9685 - Actuators (Servo / Pump / Electromagnet)
+
+| PCA9685 Channel | Device         | Description                       |
+|------------------|----------------|----------------------------------|
+| Channel 0        | Elbow Servo    | Controls the elbow joint         |
+| Channel 1        | Base Servo     | Controls rotation base           |
+| Channel 2        | Shoulder Servo | Controls the shoulder joint      |
+| Channel 14       | Electromagnet  | Turns magnet ON/OFF              |
+| Channel 15       | Vacuum Pump    | Turns suction ON/OFF             |
+
+**Important**: Make sure all power sources share a **common ground (GND)**
+
+---
+
 ## Build Instructions
 
 ```bash
@@ -144,6 +170,8 @@ make
 ## Demo video
 
 - **Douyin (TikTok China version):** [https://v.douyin.com/ni1dFG2RaWw/](https://v.douyin.com/ni1dFG2RaWw/)
+
+- ![demo](https://github.com/user-attachments/assets/3c09957a-0d09-426d-88bf-5494eae97663)
 
 ---
 
