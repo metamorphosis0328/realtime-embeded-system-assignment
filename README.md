@@ -1,6 +1,6 @@
 # Gomoku AI Robot System
 
-This project is a real-time embedded system developed as part of the **ENG5220 Real-Time Embedded Programming** coursework. It features an autonomous Gomoku-playing robot that integrates computer vision, AI-based decision-making, and robotic arm control. The system utilizes an **event-driven callback mechanism** for the vision module, a **non-blocking state machine** for the arm control logic, and a **multi-threaded architecture** to enable concurrent operation of all subsystems. And it's designed to detect human moves via a camera, compute the best counter-move using a Minimax-based AI engine, and place pieces physically using a servo-driven robotic arm.
+This project is a real-time embedded system developed as part of the **ENG5220 Real-Time Embedded Programming** coursework. It features an autonomous Gomoku-playing robot that integrates computer vision, AI-based decision-making, and robotic arm control. The system utilizes an **event-driven callback mechanism** for the vision module, a **non-blocking state machine** for the arm control logic (Since common servos do not provide any "data ready" or motion completion feedback required for event-driven control), and a **multi-threaded architecture** to enable concurrent operation of all subsystems. And it's designed to detect human moves via a camera, compute the best counter-move using a Minimax-based AI engine, and place pieces physically using a servo-driven robotic arm.
 
 ---
 
@@ -105,7 +105,7 @@ You should see a device listed at address 0x40 (default for PCA9685).
 ## Hardware
 
 - Raspberry Pi
-- Robotic arm with 3 servos
+- Robotic arm with 3 servos (KS-3620)
 - Vacuum pump and electromagnet for gripping
 - PCA9685 PWM driver module
 - Camera
