@@ -1,6 +1,6 @@
 # Gomoku AI Robot System
 
-This project is a real-time embedded system developed as part of the **ENG5220 Real-Time Embedded Programming** coursework. It features an autonomous Gomoku-playing robot that integrates computer vision, AI-based decision-making, and robotic arm control. The system utilizes **event-driven callbacks**, **blocking I/O**, and **multi-threaded** design to detect human moves via a camera, compute the best counter-move using a Minimax-based AI engine, and place pieces physically using a servo-driven robotic arm.
+This project is a real-time embedded system developed as part of the **ENG5220 Real-Time Embedded Programming** coursework. It features an autonomous Gomoku-playing robot that integrates computer vision, AI-based decision-making, and robotic arm control. The system utilizes an **event-driven callback mechanism** for the vision module, a **non-blocking state machine** for the arm control logic, and a **multi-threaded architecture** to enable concurrent operation of all subsystems. And it's designed to detect human moves via a camera, compute the best counter-move using a Minimax-based AI engine, and place pieces physically using a servo-driven robotic arm.
 
 ---
 
@@ -21,9 +21,9 @@ This project is a real-time embedded system developed as part of the **ENG5220 R
 
 - **Vision System (Event-Driven)**: Continuously captures board state using OpenCV and uses callbacks to notify other components when a new piece is detected.
 
-- **Robotic Arm**: Places pieces using servo motors and a suction-based gripping mechanism. Uses bilinear interpolation to map coordinates to servo angles.
+- **Robotic Arm (Non-blocking state machine)**: Places pieces using servo motors and a suction-based gripping mechanism. Uses bilinear interpolation to map coordinates to servo angles.
 
-- **Real-Time Coordination (with Callbacks & Blocking I/O)**: Uses blocking I/O for efficient thread management in servo control. Also employs a callback registration mechanism to decouple vision detection from AI and control logic, enabling a responsive and modular design.
+- **Real-Time Coordination (Callbacks & Multithreading)**: Uses multithreading to isolate servo control from other subsystems, using a non-blocking, time-driven state machine for precise movement scheduling. Vision detection is decoupled via a callback mechanism, allowing asynchronous event handling and smooth coordination between vision, AI, and arm modules.
 
 ---
 
@@ -58,7 +58,7 @@ This project is a real-time embedded system developed as part of the **ENG5220 R
 4. The `GomokuCoordinator`, implementing the callback interface, checks whose turn it is. If it's the AI's turn, it queries the `GomokuAI` module, which uses Minimax to select the best move.
 5. The `ArmController` executes the move:
    - Interpolates servo angles using bilinear interpolation
-   - Controls the arm via blocking I/O to ensure smooth, real-time motion
+   - Controls the arm through a non-blocking, time-driven state machine to achieve smooth and responsive motion
 6. The AI’s move is updated on the board, and the cycle repeats until a winner is found.
 
 ---
