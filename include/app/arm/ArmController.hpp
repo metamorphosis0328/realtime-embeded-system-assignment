@@ -4,14 +4,12 @@
 #include "Servo.hpp"
 #include "Pump.hpp"
 #include "Electromagnet.hpp"
-#include <utility>
-#include <map>
-#include <tuple>
 #include <array>
 #include <queue>
 #include <mutex>
 #include <thread>
 #include <condition_variable>
+#include <chrono>
 
 class ArmController
 {
@@ -27,34 +25,42 @@ public:
      */
     ArmController(Servo &base, Servo &shoulder, Servo &elbow, Pump &pump, Electromagnet &magnet);
 
+    // Non-blocking action stage
+    enum class Stage
+    {
+        // Idle
+        Idle,
+        // Grip
+        GripStartBase,
+        GripMoveShoulder,
+        GripMoveElbow,
+        GripDoGrip,
+        GripReady,
+        // Place
+        PlaceStartBase,
+        PlaceMoveShoulder,
+        PlaceMoveElbow,
+        PlaceDoRelease,
+        // Reset (reversed order)
+        ResetStartElbow,
+        ResetMoveShoulder,
+        ResetMoveBase,
+        // Compelete
+        CompleteWait,
+        Completed
+    };
+
     /**
-     * @brief Initialize the servos to their starting positions (center).
+     * @brief Get the currentStage.
+     * 
+     * @return currentStage 
+     */
+    Stage getStage() const { return currentStage; }
+
+    /**
+     * @brief Initialize the servos to their starting positions.
      */
     void initializeServos();
-
-    /**
-     * @brief Set the angle of the base servo (rotation around vertical axis).
-     *
-     * @param angle Desired angle in degrees. Positive: arm moves clockwise; negative: arm moves counter-clockwise.
-     * (The angle will be clamped within the servo's physical limits. See Servo.hpp for details)
-     */
-    void setBaseAngle(float angle);
-
-    /**
-     * @brief Set the angle of the shoulder servo (rotation around shoulder joint).
-     *
-     * @param angle Desired angle in degrees. Positive: arm moves forward; negative: arm moves backward.
-     * (The angle will be clamped within the servo's physical limits. See Servo.hpp for details)
-     */
-    void setShoulderAngle(float angle);
-
-    /**
-     * @brief Set the angle of the elbow servo (rotation around elbow joint).
-     *
-     * @param angle Desired angle in degrees. Positive: arm moves up; negative: arm moves down.
-     * (The angle will be clamped within the servo's physical limits. See Servo.hpp for details)
-     */
-    void setElbowAngle(float angle);
 
     /**
      * @brief Reset all servos to their initial positions.
@@ -63,15 +69,13 @@ public:
 
     /**
      * @brief Interpolates servo angles based on row/col position using bilinear interpolation.
-     * Calculate the 3 servo angles via bilinear interpolation to manually cordinated grid.
+     * Calculate the 3 servo angles via bilinear interpolation to manually coordinated grid.
      *
      * @param row Row index on the board (0–8). 0 is the top row, 8 is the bottom.
      * @param col Col index on the board (0–8). 0 is the leftmost column, 8 is the rightmost.
      * @return std::tuple<float, float, float> { baseAngle, shoulderAngle, elbowAngle }
      */
     std::tuple<float, float, float> interpolateAngles(int row, int col);
-
-    void placePieceAt(int row, int col);
 
     /**
      * @brief Turn on the pump and activate electromagnet to grip an object.
@@ -101,12 +105,17 @@ public:
      */
     void enqueueMove(int row, int col);
 
+    /**
+     * @brief Called regularly to advance non-blocking arm action
+     */
+    void update();
+
 private:
     // Servo control components
     Servo &baseServo;
     Servo &shoulderServo;
     Servo &elbowServo;
-    static const std::array<std::array<std::tuple<float, float, float>, 3>, 3> cordinatedGrid;
+    static const std::array<std::array<std::tuple<float, float, float>, 3>, 3> coordinatedGrid;
 
     // Pump and electromagnetic components
     Pump &pump;
@@ -120,6 +129,13 @@ private:
     bool running = true;
 
     void workerLoop();
+
+    bool isInit = false;
+    Stage currentStage = Stage::Idle;
+    std::chrono::steady_clock::time_point stageStartTime;
+    float targetBase = 0.0f;
+    float targetShoulder = 0.0f;
+    float targetElbow = 0.0f;
 };
 
 #endif

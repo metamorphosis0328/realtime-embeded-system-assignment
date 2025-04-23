@@ -6,6 +6,8 @@
 #include "Pump.hpp"
 #include "Electromagnet.hpp"
 #include <iostream>
+#include <chrono>
+#include <thread>
 
 // Config
 #define LINE_NUM 9
@@ -14,7 +16,8 @@
 #define BLACK_PIECE 1
 #define WHITE_PIECE 2
 
-ArmController& createArmController()
+// Create and initialize hardware interfaces
+ArmController &createArmController()
 {
     static PCA9685Driver pca;
 
@@ -25,7 +28,8 @@ ArmController& createArmController()
     static Electromagnet magnet(&pca, MAGNET_CHANNEL);
 
     static bool initialized = false;
-    if (!initialized) {
+    if (!initialized)
+    {
         pca.begin();
         pca.setPWMFreq(50);
         initialized = true;
@@ -45,6 +49,15 @@ int main()
         // Initialize arm module
         ArmController& arm = createArmController();
         arm.initializeServos();
+
+        while (arm.getStage() != ArmController::Stage::Idle)
+        {
+            arm.update();
+            std::this_thread::sleep_for(std::chrono::milliseconds(10)); // Minimal delay for polling
+        }
+        std::cout << "[MAIN] Arm initialization complete. Starting worker thread...\n";
+
+        // Start arm module thread
         arm.startWorker();
 
         // Initialize coordinator module
@@ -54,7 +67,22 @@ int main()
         GomokuVision vision(CAMERA_NUM, BOARD_SIZE, LINE_NUM);
         vision.registerCallback(&coordinator);
 
-        vision.run();
+        // Start vision module in a separate thread
+        std::thread visionThread(
+            [&]()
+            {
+                try
+                {
+                    vision.run();
+                }
+                catch (const std::exception &e)
+                {
+                    std::cerr << "[Vision Thread Exception] " << e.what() << std::endl;
+                    std::abort();
+                }
+            });
+
+        visionThread.join();
     }
     catch (const std::exception &e)
     {

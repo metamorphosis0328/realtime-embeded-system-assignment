@@ -1,8 +1,7 @@
 #include "ArmController.hpp"
-#include <thread>
 #include <chrono>
+#include <cmath>
 #include <iostream>
-#include <math.h>
 
 /**
  * @brief Construct a new ArmController object.
@@ -12,58 +11,20 @@
  * @param elbow Servo for the elbow joint
  */
 ArmController::ArmController(Servo &base, Servo &shoulder, Servo &elbow, Pump &pump, Electromagnet &magnet)
-    : baseServo(base), shoulderServo(shoulder), elbowServo(elbow), pump(pump), magnet(magnet) {}
+    : baseServo(base), shoulderServo(shoulder), elbowServo(elbow), pump(pump), magnet(magnet), currentStage(Stage::Idle) {}
 
 /**
  * @brief Initialize the servos to their starting positions (center).
  */
 void ArmController::initializeServos()
 {
-    elbowServo.setAngleSmoothly(0.0f);
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
-    shoulderServo.setAngleSmoothly(0.0f);
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
-    baseServo.setAngleSmoothly(0.0f);
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    stageStartTime = std::chrono::steady_clock::now();
+    currentStage = Stage::ResetStartElbow;
+    isInit = true;
 }
 
 /**
- * @brief Set the angle of the base servo.
- *
- * @param angle Desired angle in degrees.
- * (The angle will be clamped within the servo's physical limits. See Servo.hpp for details)
- */
-void ArmController::setBaseAngle(float angle)
-{
-    baseServo.setAngleSmoothly(angle);
-}
-
-/**
- * @brief Set the angle of the shoulder servo.
- *
- * @param angle Desired angle in degrees.
- * (The angle will be clamped within the servo's physical limits. See Servo.hpp for details)
- */
-void ArmController::setShoulderAngle(float angle)
-{
-    shoulderServo.setAngleSmoothly(angle);
-}
-
-/**
- * @brief Set the angle of the elbow servo.
- *
- * @param angle Desired angle in degrees.
- * (The angle will be clamped within the servo's physical limits. See Servo.hpp for details)
- */
-void ArmController::setElbowAngle(float angle)
-{
-    elbowServo.setAngleSmoothly(angle);
-}
-
-/**
- * @brief Manually cordinated grid for 9 points
+ * @brief Manually coordinated grid for 9 points
  * Each tuple records a set of servo angles:
  * std::tuple<float, float, float> { baseAngle, shoulderAngle, elbowAngle }
  * The grid is as follows:
@@ -73,22 +34,22 @@ void ArmController::setElbowAngle(float angle)
  *  ...
  * (8, 0) ... (8, 4) ... (8, 8)
  */
-const std::array<std::array<std::tuple<float, float, float>, 3>, 3> ArmController::cordinatedGrid =
+const std::array<std::array<std::tuple<float, float, float>, 3>, 3> ArmController::coordinatedGrid =
     {{
-        {
-            {{-15.0f, 75.0f, 20.0f}, {0.0f, 70.0f, 25.0f}, {15.0f, 75.0f, 20.0f}}, // Top
-        },
-        {
-            {{-22.5f, 45.0f, 55.0f}, {0.0f, 45.0f, 55.0f}, {20.0f, 45.0f, 55.0f}}, // Middle
-        },
-        {
-            {{-25.0f, 30.0f, 65.0f}, {0.0f, 25.0f, 70.0f}, {30.0f, 30.0f, 65.0f}}, // Bottom
-        },
-    }};
+    {
+        {{-15.0f, 75.0f, 20.0f}, {0.0f, 70.0f, 25.0f}, {15.0f, 75.0f, 20.0f}}, // Top
+    },
+    {
+        {{-22.5f, 45.0f, 55.0f}, {0.0f, 45.0f, 55.0f}, {20.0f, 45.0f, 55.0f}}, // Middle
+    },
+    {
+        {{-25.0f, 30.0f, 65.0f}, {0.0f, 25.0f, 70.0f}, {30.0f, 30.0f, 65.0f}}, // Bottom
+    },
+}};
 
 /**
  * @brief Interpolates servo angles based on row/col position using bilinear interpolation.
- * Calculate the 3 servo angles via bilinear interpolation to manually cordinated grid.
+ * Calculate the 3 servo angles via bilinear interpolation to manually coordinated grid.
  *
  * @param row Row index [0, 8]
  * @param col Column index [0, 8]
@@ -126,40 +87,150 @@ std::tuple<float, float, float> ArmController::interpolateAngles(int row, int co
             a3 + (b3 - a3) * t};
     };
 
-    auto q11 = cordinatedGrid[r0][c0];
-    auto q21 = cordinatedGrid[r0][c1];
-    auto q12 = cordinatedGrid[r1][c0];
-    auto q22 = cordinatedGrid[r1][c1];
+    auto q11 = coordinatedGrid[r0][c0];
+    auto q21 = coordinatedGrid[r0][c1];
+    auto q12 = coordinatedGrid[r1][c0];
+    auto q22 = coordinatedGrid[r1][c1];
 
-    auto top = interpolate(q11, q21, fc);      // left to right on top
-    auto bottom = interpolate(q12, q22, fc);   // left to right on bottom
-    auto final = interpolate(top, bottom, fr); // top to bottom
+    auto top = interpolate(q11, q21, fc);      // Left to right on top
+    auto bottom = interpolate(q12, q22, fc);   // Left to right on bottom
+    auto final = interpolate(top, bottom, fr); // Top to bottom
 
     return final;
 }
 
-void ArmController::placePieceAt(int row, int col)
+/**
+ * @brief Periodically update the arm placement sequence in a non-blocking way.
+ *
+ */
+void ArmController::update()
 {
-    if (row < 0 || row > 8 || col < 0 || col > 8)
+    using namespace std::chrono;
+    auto now = steady_clock::now();
+
+    switch (currentStage)
     {
-        std::cerr << "[WARN] Invalid coordinate for interpolation: (" << row << ", " << col << ")\n";
-        return;
+    // Idle
+    case Stage::Idle:
+        break;
+    // Grip
+    case Stage::GripStartBase:
+            currentStage = Stage::GripMoveShoulder;
+        break;
+    case Stage::GripMoveShoulder:
+        if (duration_cast<milliseconds>(now - stageStartTime).count() >= 200)
+        {
+            shoulderServo.setAngle(30.0f);
+            stageStartTime = now;
+            currentStage = Stage::GripMoveElbow;
+        }
+        break;
+    case Stage::GripMoveElbow:
+        if (duration_cast<milliseconds>(now - stageStartTime).count() >= 500)
+        {
+            elbowServo.setAngle(60.0f);
+            stageStartTime = now;
+            currentStage = Stage::GripReady;
+    //         currentStage = Stage::GripDoGrip;
+        }
+        break;
+    // case Stage::GripDoGrip:
+    //     if (duration_cast<milliseconds>(now - stageStartTime).count() >= 500)
+    //     {
+    //         grip(); // Do grip()
+    //         stageStartTime = now;
+    //         currentStage = Stage::GripReady;
+    //     }
+    //     break;
+    case Stage::GripReady:
+        if (duration_cast<milliseconds>(now - stageStartTime).count() >= 800)
+        {
+            elbowServo.setAngle(0.0f); // Draw back to avoid collision
+            stageStartTime = now;
+            currentStage = Stage::PlaceStartBase;
+        }
+        break;
+
+    // Place
+    case Stage::PlaceStartBase:
+        if (duration_cast<milliseconds>(now - stageStartTime).count() >= 500)
+        {
+            baseServo.setAngle(targetBase);
+            stageStartTime = now;
+            currentStage = Stage::PlaceMoveShoulder;
+        }
+        break;
+    case Stage::PlaceMoveShoulder:
+        if (duration_cast<milliseconds>(now - stageStartTime).count() >= 500)
+        {
+            shoulderServo.setAngle(targetShoulder);
+            stageStartTime = now;
+            currentStage = Stage::PlaceMoveElbow;
+        }
+        break;
+    case Stage::PlaceMoveElbow:
+        if (duration_cast<milliseconds>(now - stageStartTime).count() >= 500)
+        {
+            elbowServo.setAngle(targetElbow);
+            stageStartTime = now;
+            currentStage = Stage::ResetStartElbow;
+            // currentStage = Stage::PlaceDoRelease;
+        }
+        break;
+    // case Stage::PlaceDoRelease:
+    //     if (duration_cast<milliseconds>(now - stageStartTime).count() >= 500)
+    //     {
+    //         release(); // Do release()
+    //         stageStartTime = now;
+    //         currentStage = Stage::ResetStartElbow;
+    //     }
+    //     break;
+
+    // Reset (reversed order)
+    case Stage::ResetStartElbow:
+        if (duration_cast<milliseconds>(now - stageStartTime).count() >= 800)
+        {
+            elbowServo.setAngle(0.0f);
+            stageStartTime = now;
+            currentStage = Stage::ResetMoveShoulder;
+        }
+        break;
+    case Stage::ResetMoveShoulder:
+        if (duration_cast<milliseconds>(now - stageStartTime).count() >= 800)
+        {
+            shoulderServo.setAngle(0.0f);
+            stageStartTime = now;
+            currentStage = Stage::ResetMoveBase;
+        }
+        break;
+    case Stage::ResetMoveBase:
+        if (duration_cast<milliseconds>(now - stageStartTime).count() >= 500)
+        {
+            baseServo.setAngle(-90.0f);
+            stageStartTime = now;
+            currentStage = Stage::CompleteWait;
+        }
+        break;
+
+    // Complete
+    case Stage::CompleteWait:
+        if (duration_cast<milliseconds>(now - stageStartTime).count() >= 10)
+        {
+            if (isInit)
+            {
+                std::cout << "[ARM] Initialization complete.\n";
+                currentStage = Stage::Idle;
+                isInit = false;
+            }
+            else
+            {
+                currentStage = Stage::Completed;
+            }
+        }
+        break;
+    case Stage::Completed:
+        break;
     }
-
-    auto [base, shoulder, elbow] = interpolateAngles(row, col);
-
-    // Test code
-    // std::cout << "[TEST] Placing at board coordinate: (" << row << ", " << col << ")\n";
-    // std::cout << "[TEST] Interpolated angles: base=" << base
-    //           << ", shoulder=" << shoulder
-    //           << ", elbow=" << elbow << "\n";
-
-    setBaseAngle(base);
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    setShoulderAngle(shoulder);
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    setElbowAngle(elbow);
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
 }
 
 /**
@@ -167,14 +238,8 @@ void ArmController::placePieceAt(int row, int col)
  */
 void ArmController::resetServos()
 {
-    elbowServo.setAngleSmoothly(0.0f);
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
-    shoulderServo.setAngleSmoothly(0.0f);
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
-    baseServo.setAngleSmoothly(0.0f);
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    stageStartTime = std::chrono::steady_clock::now();
+    currentStage = Stage::ResetStartElbow;
 }
 
 /**
@@ -183,17 +248,16 @@ void ArmController::resetServos()
 void ArmController::grip()
 {
     pump.turnOn();
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
     magnet.activate();
 }
 
 /**
- * @brief Deactivate the electromagnet and turn off the pump to release an object.
+ * @brief Deactivate the electromagnet and turn off the pump to release an
+ * object.
  */
 void ArmController::release()
 {
     magnet.deactivate();
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
     pump.turnOff();
 }
 
@@ -202,23 +266,24 @@ void ArmController::release()
  */
 void ArmController::gripNewPiece()
 {
-    baseServo.setAngleSmoothly(-90.0f);
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
-    shoulderServo.setAngleSmoothly(30.0f);
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
-    elbowServo.setAngleSmoothly(60.0f);
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
-    grip();
+    stageStartTime = std::chrono::steady_clock::now();
+    currentStage = Stage::GripStartBase;
 }
 
+/**
+ * @brief Starts the background thread for executing arm tasks.
+ */
 void ArmController::startWorker()
 {
     workerThread = std::thread(&ArmController::workerLoop, this);
 }
 
+/**
+ * @brief Adds a move task to the execution queue.
+ *
+ * @param row Board row (arm coordinate system)
+ * @param col Board col (arm coordinate system)
+ */
 void ArmController::enqueueMove(int row, int col)
 {
     std::lock_guard<std::mutex> lock(queueMutex);
@@ -226,22 +291,30 @@ void ArmController::enqueueMove(int row, int col)
     cv.notify_one();
 }
 
+/**
+ * @brief Background thread loop for handling queued arm tasks.
+ */
 void ArmController::workerLoop()
 {
     while (running)
     {
         std::unique_lock<std::mutex> lock(queueMutex);
-        cv.wait(lock, [&]
-                { return !taskQueue.empty(); });
+        cv.wait(lock, [&] { return !taskQueue.empty(); });
+        if (!running)
+            return;
 
         auto [row, col] = taskQueue.front();
         taskQueue.pop();
         lock.unlock();
 
-        // armController->gripNewPiece();
-        placePieceAt(row, col);
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-        // armController->release();
+        std::tie(targetBase, targetShoulder, targetElbow) = interpolateAngles(row, col);
+        gripNewPiece();
+        while (running && currentStage != Stage::Completed)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10)); // Minimal delay for polling
+            update();                                                   // Polling
+        }
+
         resetServos();
     }
 }
