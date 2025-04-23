@@ -75,6 +75,31 @@ sudo apt update
 sudo apt install libopencv-dev
 ```
 
+### Enable I2C on Raspberry Pi
+
+```bash
+sudo raspi-config
+```
+
+Navigate to `Interfacing Options` → `I2C` → `Enable`
+
+Exit and reboot your Raspberry Pi
+
+Install I2C tools (for testing and debugging):
+
+```bash
+sudo apt update
+sudo apt install -y i2c-tools
+```
+
+Check connected I2C devices
+
+```bash
+i2cdetect -y 1
+```
+
+You should see a device listed at address 0x40 (default for PCA9685).
+
 ---
 
 ## Hardware
@@ -100,18 +125,25 @@ make
 
 - The AI assumes the human plays black and the robot plays white.
 - Vision logic uses a combination of Hough Circles and grayscale intensity to detect black and white pieces. Make sure the lighting is sufficient and there are no shadows on the board.
+- The vision detection mechanism requires the **entire board** to be visible within the camera frame, especially the **edges and corners**. Incomplete visibility may result in incorrect or failed coordinate mapping, as the system relies on full board geometry for perspective transformation.
 - Arm movement angles are calculated using bilinear interpolation from a 3x3 manually calibrated grid.
 
 ---
 
 ## Limitations & Future Work
 
-- The system is a prototype and not yet fully robust in terms of physical placement accuracy, and some core functionalities are still incomplete.
+- The system is a prototype and not yet fully robust in terms of physical placement accuracy, and the **gripping functionality** is currently under development.
 - Vision system currently uses simple grayscale thresholding; color detection could be improved with better lighting adaptation or ML-based classification.
 - AI depth is fixed and does not adapt to difficulty level or performance constraints.
 - The robotic arm relies on manually calibrated angles, and real-time kinematics is not yet implemented.
 - No GUI or user interface for game state or AI settings.
 - The current system architecture lacks sufficient decoupling between modules, which affects maintainability and scalability.
+
+---
+
+## Demo video
+
+- **Douyin (TikTok China version):** [https://v.douyin.com/ni1dFG2RaWw/](https://v.douyin.com/ni1dFG2RaWw/)
 
 ---
 
