@@ -53,7 +53,7 @@ int main()
         while (arm.getStage() != ArmController::Stage::Idle)
         {
             arm.update();
-            std::this_thread::sleep_for(std::chrono::milliseconds(10)); // Minimal delay for pulling
+            std::this_thread::sleep_for(std::chrono::milliseconds(10)); // Minimal delay for polling
         }
         std::cout << "[MAIN] Arm initialization complete. Starting worker thread...\n";
 
